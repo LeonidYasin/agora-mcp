@@ -26,29 +26,49 @@ agora-mcp/
 
 ## Running Stage 0
 
+No Docker needed — it's a plain Node.js service + Postgres. Native install on a VPS:
+
 ```bash
+# 0. Postgres 16/17 + pgvector (Ubuntu, via the official PGDG repo):
+sudo apt install -y postgresql-common
+sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+sudo apt install -y postgresql-17 postgresql-17-pgvector
+sudo -u postgres createuser agora --pwprompt
+sudo -u postgres createdb agora -O agora
+
+# Ollama, for local embeddings (bge-m3 — 1024-dim, multilingual RU/EN):
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull bge-m3
+
 cd mcp-server
 npm install
 
-# 1. Postgres + pgvector, then apply migrations in order:
+# 1. Apply migrations in order:
 psql "$DATABASE_URL" -f ../db/migrations/001_init.sql
 psql "$DATABASE_URL" -f ../db/migrations/002_auth_and_protocol_alignment.sql
 
 # 2. Invite a user (Stage 0 is invite-only — see docs/architecture.md):
 #    generate a random token yourself, store its SHA-256 hash, hand the
 #    raw token to the invitee out-of-band.
+openssl rand -hex 32   # <- the raw token; give this to the invitee
 psql "$DATABASE_URL" -c "INSERT INTO users (external_id, display_name, token_hash) \
   VALUES ('leonid', 'Leonid', encode(digest('<raw-token>', 'sha256'), 'hex'));"
 
 # 3. Environment
-export DATABASE_URL=postgres://user:pass@localhost:5432/agora
-export EMBEDDING_PROVIDER=ollama          # or: openai
-export EMBEDDING_MODEL=nomic-embed-text   # must match items.embedding's vector(1024) dimension
-# export EMBEDDING_BASE_URL=...           # optional override
-# export EMBEDDING_API_KEY=...            # required for EMBEDDING_PROVIDER=openai
+export DATABASE_URL=postgres://agora:<password>@localhost:5432/agora
+export EMBEDDING_PROVIDER=ollama   # or: openai
+# export EMBEDDING_MODEL=bge-m3    # default when EMBEDDING_PROVIDER=ollama; must match
+                                    # items.embedding's vector(1024) dimension if you override it
+# export EMBEDDING_BASE_URL=...    # optional override
+# export EMBEDDING_API_KEY=...     # required for EMBEDDING_PROVIDER=openai
 
 npm run build && npm start   # or: npm run dev
 ```
+
+For a production-ish setup, run it under **systemd** (`Restart=on-failure`,
+`EnvironmentFile=` for the vars above) rather than a bare `npm start`, and put it behind
+**nginx + Let's Encrypt** if it needs to be reachable from outside the VPS — the bearer
+token goes out in a plain header, so it must never travel over unencrypted HTTP.
 
 Server listens on `http://127.0.0.1:3010/mcp` by default (`HOST`/`PORT` env vars to
 change). `GET /health` for a liveness check.
