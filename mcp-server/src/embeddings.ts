@@ -34,7 +34,7 @@ export class UnimplementedEmbeddingService implements EmbeddingService {
 
 /**
  * Calls a local/self-hosted Ollama instance's embeddings endpoint
- * (e.g. `nomic-embed-text`, per docs/synapse-protocol.md's provider table).
+ * (default model: bge-m3, per docs/synapse-protocol.md's provider table).
  */
 export class OllamaEmbeddingService implements EmbeddingService {
   constructor(
@@ -44,16 +44,18 @@ export class OllamaEmbeddingService implements EmbeddingService {
 
   async embed(text: string, role: ItemRole): Promise<number[]> {
     const prefixed = ROLE_PREFIX[role] + text;
-    const response = await fetch(`${this.baseUrl}/api/embeddings`, {
+    // /api/embed is the current endpoint (batch-capable, returns `embeddings`);
+    // the older /api/embeddings (singular `prompt`/`embedding`) is deprecated.
+    const response = await fetch(`${this.baseUrl}/api/embed`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: this.model, prompt: prefixed }),
+      body: JSON.stringify({ model: this.model, input: prefixed }),
     });
     if (!response.ok) {
       throw new Error(`Ollama embeddings request failed: ${response.status} ${await response.text()}`);
     }
-    const data = (await response.json()) as { embedding: number[] };
-    return data.embedding;
+    const data = (await response.json()) as { embeddings: number[][] };
+    return data.embeddings[0];
   }
 }
 
@@ -92,7 +94,9 @@ export class OpenAICompatibleEmbeddingService implements EmbeddingService {
 /**
  * Picks a provider from environment variables:
  *   EMBEDDING_PROVIDER = "ollama" | "openai" | unset
- *   EMBEDDING_MODEL    = model name (required for ollama/openai)
+ *   EMBEDDING_MODEL    = model name
+ *                        (default "bge-m3" for ollama — 1024-dim,
+ *                         multilingual; required, no default, for openai)
  *   EMBEDDING_BASE_URL = provider base URL
  *                        (default http://127.0.0.1:11434 for ollama,
  *                         https://api.openai.com for openai)
@@ -100,16 +104,18 @@ export class OpenAICompatibleEmbeddingService implements EmbeddingService {
  *
  * NOTE: whatever model you pick, `vector(1024)` in
  * db/migrations/001_init.sql must match its output dimension
- * (e.g. bge-m3/multilingual-e5-large = 1024; adjust the migration if you
- * pick a different-dimension model).
+ * (bge-m3 and mxbai-embed-large are both 1024; nomic-embed-text is 768 —
+ * adjust the migration if you switch to a different-dimension model).
  */
 export function createEmbeddingService(): EmbeddingService {
   const provider = process.env.EMBEDDING_PROVIDER;
 
   if (provider === "ollama") {
     const baseUrl = process.env.EMBEDDING_BASE_URL ?? "http://127.0.0.1:11434";
-    const model = process.env.EMBEDDING_MODEL;
-    if (!model) throw new Error("EMBEDDING_MODEL is required when EMBEDDING_PROVIDER=ollama");
+    // bge-m3 (1024-dim, multilingual) matches vector(1024) in
+    // db/migrations/001_init.sql and docs/architecture.md's stated choice
+    // (Leonid's users write in both Russian and English).
+    const model = process.env.EMBEDDING_MODEL ?? "bge-m3";
     return new OllamaEmbeddingService(baseUrl, model);
   }
 
