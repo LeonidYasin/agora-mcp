@@ -29,32 +29,23 @@ agora-mcp/
 No Docker needed — it's a plain Node.js service + Postgres. Native install on a VPS:
 
 ```bash
-# 0. Postgres 16/17 + pgvector (Ubuntu, via the official PGDG repo):
+# 0. Postgres + pgvector (Ubuntu). Migrations are verified on PostgreSQL 16 + pgvector 0.6;
+#    17 via the official PGDG repo should behave the same:
 sudo apt install -y postgresql-common
 sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
 sudo apt install -y postgresql-17 postgresql-17-pgvector
 sudo -u postgres createuser agora --pwprompt
 sudo -u postgres createdb agora -O agora
+# `vector` is NOT a "trusted" extension, so the non-superuser `agora` role can't create it
+# (migration 001 would fail with "permission denied to create extension"). Enable it once
+# as the superuser — 001's own `CREATE EXTENSION IF NOT EXISTS` then becomes a no-op:
+sudo -u postgres psql -d agora -c 'CREATE EXTENSION IF NOT EXISTS vector;'
 
 # Ollama, for local embeddings (bge-m3 — 1024-dim, multilingual RU/EN):
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull bge-m3
 
-cd mcp-server
-npm install
-
-# 1. Apply migrations in order:
-psql "$DATABASE_URL" -f ../db/migrations/001_init.sql
-psql "$DATABASE_URL" -f ../db/migrations/002_auth_and_protocol_alignment.sql
-
-# 2. Invite a user (Stage 0 is invite-only — see docs/architecture.md):
-#    generate a random token yourself, store its SHA-256 hash, hand the
-#    raw token to the invitee out-of-band.
-openssl rand -hex 32   # <- the raw token; give this to the invitee
-psql "$DATABASE_URL" -c "INSERT INTO users (external_id, display_name, token_hash) \
-  VALUES ('leonid', 'Leonid', encode(digest('<raw-token>', 'sha256'), 'hex'));"
-
-# 3. Environment
+# 1. Environment (before anything below that uses $DATABASE_URL)
 export DATABASE_URL=postgres://agora:<password>@localhost:5432/agora
 export EMBEDDING_PROVIDER=ollama   # or: openai
 # export EMBEDDING_MODEL=bge-m3    # default when EMBEDDING_PROVIDER=ollama; must match
@@ -62,6 +53,21 @@ export EMBEDDING_PROVIDER=ollama   # or: openai
 # export EMBEDDING_BASE_URL=...    # optional override
 # export EMBEDDING_API_KEY=...     # required for EMBEDDING_PROVIDER=openai
 
+cd mcp-server
+npm install
+
+# 2. Apply migrations in order:
+psql "$DATABASE_URL" -f ../db/migrations/001_init.sql
+psql "$DATABASE_URL" -f ../db/migrations/002_auth_and_protocol_alignment.sql
+
+# 3. Invite a user (Stage 0 is invite-only — see docs/architecture.md):
+#    generate a random token yourself, store its SHA-256 hash, hand the
+#    raw token to the invitee out-of-band.
+openssl rand -hex 32   # <- the raw token; give this to the invitee
+psql "$DATABASE_URL" -c "INSERT INTO users (external_id, display_name, token_hash) \
+  VALUES ('leonid', 'Leonid', encode(digest('<raw-token>', 'sha256'), 'hex'));"
+
+# 4. Build and run
 npm run build && npm start   # or: npm run dev
 ```
 
@@ -75,6 +81,14 @@ change). `GET /health` for a liveness check.
 
 Every tool call must carry `Authorization: Bearer <raw-token>` for a token issued as
 above.
+
+## Testing
+
+`mcp-server/e2e/` is an end-to-end smoke test: real MCP calls against a running server and a
+real Postgres+pgvector (26 checks — auth, matching, `synapse/v0` output shape, per-user
+isolation, bad input). It uses a **fake embedder**, so it verifies the plumbing, not the
+semantic quality of `bge-m3`. Run it on a throwaway `*_test` database — it truncates tables.
+See [`mcp-server/e2e/README.md`](mcp-server/e2e/README.md).
 
 ## Docs
 

@@ -36,12 +36,18 @@ Same shape as `submit_offer`, but for something the user is looking for. Embedde
 `want`-role instruction prefix.
 
 ## `search_matches`
-Find candidate matches for one of the user's items.
+Find candidate matches for one of the **caller's own, active** items. Candidates are
+*other users'* active items of the opposite type — a user is never matched against
+their own items.
 
 | param | type | notes |
 |---|---|---|
 | `item_id` | string | the item to search matches for |
 | `limit` | number? | default 10, max 50 |
+
+Errors with "Item not found, inactive, or not yours." if `item_id` doesn't exist, was
+deactivated, or belongs to someone else — deliberately the same message in all three
+cases, so item ids can't be probed. `score` is cosine similarity clamped to `[0, 1]`.
 
 Returns: `{ matches: SynapseMatch[] }` — each match follows the protocol's `match` shape
 (`schema`, `match_id`, `item_a` (offer), `item_b` (want), `owner_a`, `owner_b`, `score`,
@@ -62,7 +68,8 @@ Mark an item inactive (withdrawn, fulfilled, no longer relevant).
 |---|---|
 | `item_id` | string |
 
-Returns: `{ ok: true }`
+Returns: `{ ok: true }`, or an error ("Item not found, already inactive, or not yours.") if
+nothing was actually changed — it never reports success for a no-op.
 
 ---
 

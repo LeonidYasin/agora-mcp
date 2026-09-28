@@ -3,7 +3,7 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
 import { z } from "zod";
 import { createEmbeddingService } from "./embeddings.js";
-import { insertItem, getUserItems, deactivateItem, searchMatches } from "./db.js";
+import { pool, insertItem, getUserItems, deactivateItem, searchMatches } from "./db.js";
 import { requireUserId, type ToolExtra } from "./auth.js";
 import { toSynapseItem, toSynapseMatch } from "./protocol.js";
 
@@ -90,7 +90,7 @@ function getServer() {
     "search_matches",
     {
       title: "Search for matches",
-      description: "Find candidate matches for one of the user's items.",
+      description: "Find candidate matches (other users' items of the opposite type) for one of the caller's own active items.",
       inputSchema: {
         item_id: z.string().describe("Item to search matches for"),
         limit: z.number().int().positive().max(50).optional(),
@@ -98,8 +98,11 @@ function getServer() {
     },
     async ({ item_id, limit }, extra: ToolExtra) => {
       try {
-        await requireUserId(extra); // authenticated, but any caller may query matches for a public item_id
-        const rows = await searchMatches({ itemId: item_id, limit: limit ?? 10 });
+        const userId = await requireUserId(extra);
+        const rows = await searchMatches({ userId, itemId: item_id, limit: limit ?? 10 });
+        if (rows === null) {
+          return errorResult(new Error("Item not found, inactive, or not yours."));
+        }
         return jsonResult({ matches: rows.map(toSynapseMatch) });
       } catch (error) {
         return errorResult(error);
@@ -137,7 +140,10 @@ function getServer() {
     async ({ item_id }, extra: ToolExtra) => {
       try {
         const userId = await requireUserId(extra);
-        await deactivateItem(userId, item_id);
+        const changed = await deactivateItem(userId, item_id);
+        if (!changed) {
+          return errorResult(new Error("Item not found, already inactive, or not yours."));
+        }
         return jsonResult({ ok: true });
       } catch (error) {
         return errorResult(error);
@@ -189,7 +195,7 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "agora-mcp", stage: 0 });
 });
 
-app.listen(PORT, HOST, () => {
+const httpServer = app.listen(PORT, HOST, () => {
   console.log(`agora-mcp Stage 0 server listening on http://${HOST}:${PORT}/mcp`);
   if (process.env.EMBEDDING_PROVIDER === undefined) {
     console.warn(
@@ -199,7 +205,21 @@ app.listen(PORT, HOST, () => {
   }
 });
 
-process.on("SIGINT", async () => {
-  console.log("Shutting down agora-mcp server...");
+// systemd stops services with SIGTERM (Ctrl-C in a terminal is SIGINT) — handle both:
+// stop accepting connections, drop idle keep-alives, release the DB pool, exit 0.
+let shuttingDown = false;
+async function shutdown(signal: string) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`${signal} received, shutting down agora-mcp...`);
+  httpServer.close();
+  httpServer.closeIdleConnections();
+  try {
+    await pool.end();
+  } catch (error) {
+    console.error("Error closing DB pool:", error);
+  }
   process.exit(0);
-});
+}
+process.on("SIGINT", () => void shutdown("SIGINT"));
+process.on("SIGTERM", () => void shutdown("SIGTERM"));

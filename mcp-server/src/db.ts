@@ -44,60 +44,67 @@ export async function getUserItems(userId: string): Promise<InternalItemRow[]> {
   return result.rows;
 }
 
-export async function deactivateItem(userId: string, itemId: string): Promise<void> {
-  await pool.query(
-    `UPDATE items SET active = false, updated_at = now() WHERE id = $1 AND user_id = $2`,
+/**
+ * Returns true only if a row actually changed — i.e. the item exists, belongs
+ * to `userId`, and was still active. Callers must not report success for a no-op.
+ */
+export async function deactivateItem(userId: string, itemId: string): Promise<boolean> {
+  const result = await pool.query(
+    `UPDATE items SET active = false, updated_at = now()
+     WHERE id = $1 AND user_id = $2 AND active = true`,
     [itemId, userId]
   );
+  return (result.rowCount ?? 0) > 0;
 }
 
 /**
- * Cross-matches an item against items of the opposite type, ranked by
- * cosine distance (pgvector `<=>` operator), then upserts each candidate
- * into `matches` so outcome/status can evolve later (Stage 2 behavioral
- * feedback hooks into this same row via `outcome`).
+ * Cross-matches one of the caller's own items against OTHER users' items of the
+ * opposite type, ranked by cosine distance (pgvector `<=>`), then upserts each
+ * candidate into `matches` so `outcome` can evolve later (Stage 1/2 behavioral
+ * feedback writes to this same row).
+ *
+ * Returns null when the item doesn't exist, isn't active, or isn't owned by
+ * `userId` — deliberately indistinguishable, so callers can't probe for other
+ * users' item ids. A user's own items are never returned as candidates.
  */
 export async function searchMatches(params: {
+  userId: string;
   itemId: string;
   limit: number;
-}): Promise<InternalMatchRow[]> {
-  const { itemId, limit } = params;
+}): Promise<InternalMatchRow[] | null> {
+  const { userId, itemId, limit } = params;
 
+  const sourceRow = await pool.query<{ type: "offer" | "want" }>(
+    `SELECT type FROM items WHERE id = $1 AND user_id = $2 AND active = true`,
+    [itemId, userId]
+  );
+  const source = sourceRow.rows[0];
+  if (!source) return null;
+
+  // GREATEST(0, ...): cosine similarity can be negative for some models, but the
+  // synapse/v0 `match.score` contract is [0, 1].
   const candidates = await pool.query<{
     item_id: string;
     owner_user_id: string;
-    type: "offer" | "want";
     score: number;
   }>(
-    `WITH source AS (
-       SELECT embedding, type FROM items WHERE id = $1
-     )
-     SELECT i.id AS item_id, i.user_id AS owner_user_id, i.type,
-            1 - (i.embedding <=> source.embedding) AS score
-     FROM items i, source
+    `SELECT i.id AS item_id, i.user_id AS owner_user_id,
+            GREATEST(0, 1 - (i.embedding <=> s.embedding)) AS score
+     FROM items i, (SELECT embedding FROM items WHERE id = $1) s
      WHERE i.active = true
-       AND i.type <> source.type
-       AND i.id <> $1
-     ORDER BY i.embedding <=> source.embedding
-     LIMIT $2`,
-    [itemId, limit]
+       AND i.type <> $3::item_type
+       AND i.user_id <> $2
+     ORDER BY i.embedding <=> s.embedding
+     LIMIT $4`,
+    [itemId, userId, source.type, limit]
   );
-
-  if (candidates.rows.length === 0) return [];
-
-  const sourceRow = await pool.query<{ type: "offer" | "want"; user_id: string }>(
-    `SELECT type, user_id FROM items WHERE id = $1`,
-    [itemId]
-  );
-  const source = sourceRow.rows[0];
-  if (!source) return [];
 
   const rows: InternalMatchRow[] = [];
   for (const candidate of candidates.rows) {
     const offerItemId = source.type === "offer" ? itemId : candidate.item_id;
     const wantItemId = source.type === "want" ? itemId : candidate.item_id;
-    const ownerA = source.type === "offer" ? source.user_id : candidate.owner_user_id;
-    const ownerB = source.type === "want" ? source.user_id : candidate.owner_user_id;
+    const ownerA = source.type === "offer" ? userId : candidate.owner_user_id;
+    const ownerB = source.type === "want" ? userId : candidate.owner_user_id;
 
     const upserted = await pool.query<{ id: string; outcome: string; created_at: string }>(
       `INSERT INTO matches (offer_item_id, want_item_id, score, outcome)
