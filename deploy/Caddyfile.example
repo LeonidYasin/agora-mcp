@@ -1,0 +1,9 @@
+# Replace this reserved example hostname with the real Agora hostname.
+# Add as a separate site/import; never replace the existing MCP site.
+agora.example.invalid {
+    reverse_proxy 127.0.0.1:3011 {
+        # MCP SDK's loopback Host validation stays enabled.
+        # Caddy normally preserves the external Host; explicitly use the upstream.
+        header_up Host {upstream_hostport}
+    }
+}

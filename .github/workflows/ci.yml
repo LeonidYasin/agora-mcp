@@ -32,6 +32,9 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm test
+      - name: Validate example Caddy configuration
+        working-directory: .
+        run: bash deploy/check-caddy.sh
 
   smoke:
     name: Smoke test
