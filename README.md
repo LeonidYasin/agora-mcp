@@ -54,7 +54,7 @@ export EMBEDDING_PROVIDER=ollama   # or: openai
 # export EMBEDDING_API_KEY=...     # required for EMBEDDING_PROVIDER=openai
 
 cd mcp-server
-npm install
+npm ci
 
 # 2. Apply migrations in order:
 psql "$DATABASE_URL" -f ../db/migrations/001_init.sql
@@ -77,15 +77,24 @@ For a production-ish setup, run it under **systemd** (`Restart=on-failure`,
 token goes out in a plain header, so it must never travel over unencrypted HTTP.
 
 Server listens on `http://127.0.0.1:3010/mcp` by default (`HOST`/`PORT` env vars to
-change). `GET /health` for a liveness check.
+change). `GET /health` for a liveness check. `GET /ready` checks DB connectivity and configured
+embedding provider (not migrations, provider availability or semantic quality).
+
+For deployment alongside an existing MCP server and a two-user Notion acceptance test,
+see [`docs/testing-from-notion.md`](docs/testing-from-notion.md).
 
 Every tool call must carry `Authorization: Bearer <raw-token>` for a token issued as
 above.
 
 ## Testing
 
+Under Node 22, run `npm ci && npm run build && npm test` from `mcp-server/`.
+Unit tests cover input validation and embedding responses/deadlines. PR CI also runs
+the real-database smoke test below.
+
+
 `mcp-server/e2e/` is an end-to-end smoke test: real MCP calls against a running server and a
-real Postgres+pgvector (26 checks — auth, matching, `synapse/v0` output shape, per-user
+real Postgres+pgvector (auth, MCP discovery, matching, candidate cards, `synapse/v0` output shape, per-user
 isolation, bad input). It uses a **fake embedder**, so it verifies the plumbing, not the
 semantic quality of `bge-m3`. Run it on a throwaway `*_test` database — it truncates tables.
 See [`mcp-server/e2e/README.md`](mcp-server/e2e/README.md).

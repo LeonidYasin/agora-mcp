@@ -10,6 +10,38 @@
  * behind role-prefixed embeddings and the provider table this mirrors.
  */
 
+import { ToolError } from "./errors.js";
+
+export const EMBEDDING_DIMENSION = 1024;
+
+export function validateEmbedding(value: unknown): number[] {
+  if (!Array.isArray(value) || value.length !== EMBEDDING_DIMENSION ||
+      !value.every((v) => typeof v === "number" && Number.isFinite(v) && Number.isFinite(Math.fround(v))) ||
+      !value.some((v) => Math.fround(v) !== 0)) {
+    throw new ToolError("Embedding provider returned an invalid vector; expected 1024 finite values and nonzero norm.");
+  }
+  return value;
+}
+
+async function requestEmbedding(url: string, init: RequestInit, timeoutMs: number): Promise<unknown> {
+  try {
+    const response = await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
+    if (!response.ok) throw new ToolError("Embedding provider unavailable.");
+    return await response.json();
+  } catch (error) {
+    if (error instanceof ToolError) throw error;
+    throw new ToolError("Embedding provider unavailable or request timed out.");
+  }
+}
+
+function readVector(data: unknown, provider: "ollama" | "openai"): number[] {
+  const payload = data as { embeddings?: unknown[]; data?: Array<{ embedding?: unknown }> } | null;
+  const vector = provider === "ollama"
+    ? payload?.embeddings?.[0]
+    : payload?.data?.[0]?.embedding;
+  return validateEmbedding(vector);
+}
+
 export type ItemRole = "offer" | "want";
 
 const ROLE_PREFIX: Record<ItemRole, string> = {
@@ -26,7 +58,7 @@ export class UnimplementedEmbeddingService implements EmbeddingService {
   async embed(text: string, role: ItemRole): Promise<number[]> {
     void ROLE_PREFIX[role];
     void text;
-    throw new Error(
+    throw new ToolError(
       "EmbeddingService.embed() is not configured — set EMBEDDING_PROVIDER (ollama|openai)."
     );
   }
@@ -39,23 +71,20 @@ export class UnimplementedEmbeddingService implements EmbeddingService {
 export class OllamaEmbeddingService implements EmbeddingService {
   constructor(
     private readonly baseUrl: string,
-    private readonly model: string
+    private readonly model: string,
+    private readonly timeoutMs = 15000
   ) {}
 
   async embed(text: string, role: ItemRole): Promise<number[]> {
     const prefixed = ROLE_PREFIX[role] + text;
     // /api/embed is the current endpoint (batch-capable, returns `embeddings`);
     // the older /api/embeddings (singular `prompt`/`embedding`) is deprecated.
-    const response = await fetch(`${this.baseUrl}/api/embed`, {
+    const data = await requestEmbedding(`${this.baseUrl}/api/embed`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ model: this.model, input: prefixed }),
-    });
-    if (!response.ok) {
-      throw new Error(`Ollama embeddings request failed: ${response.status} ${await response.text()}`);
-    }
-    const data = (await response.json()) as { embeddings: number[][] };
-    return data.embeddings[0];
+    }, this.timeoutMs);
+    return readVector(data, "ollama");
   }
 }
 
@@ -70,24 +99,21 @@ export class OpenAICompatibleEmbeddingService implements EmbeddingService {
   constructor(
     private readonly baseUrl: string,
     private readonly apiKey: string,
-    private readonly model: string
+    private readonly model: string,
+    private readonly timeoutMs = 15000
   ) {}
 
   async embed(text: string, role: ItemRole): Promise<number[]> {
     const prefixed = ROLE_PREFIX[role] + text;
-    const response = await fetch(`${this.baseUrl}/v1/embeddings`, {
+    const data = await requestEmbedding(`${this.baseUrl}/v1/embeddings`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({ model: this.model, input: prefixed }),
-    });
-    if (!response.ok) {
-      throw new Error(`Embeddings request failed: ${response.status} ${await response.text()}`);
-    }
-    const data = (await response.json()) as { data: Array<{ embedding: number[] }> };
-    return data.data[0].embedding;
+    }, this.timeoutMs);
+    return readVector(data, "openai");
   }
 }
 

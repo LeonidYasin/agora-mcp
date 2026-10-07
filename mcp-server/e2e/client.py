@@ -29,9 +29,18 @@ def call(tool, args, token=None):
                        "params": {"name": tool, "arguments": args}}).encode()
     req = urllib.request.Request(URL, data=body, headers=headers)
     raw = urllib.request.urlopen(req).read().decode()
-    data = next(l[5:] for l in raw.splitlines() if l.startswith("data:"))
-    res = json.loads(data)["result"]
-    payload = json.loads(res["content"][0]["text"])
+    data = next((l[5:] for l in raw.splitlines() if l.startswith("data:")), raw)
+    rpc = json.loads(data)
+    if "error" in rpc:
+        return rpc["error"], True
+    res = rpc["result"]
+    text = res["content"][0]["text"]
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        payload = {"error": text}
+    if not res.get("isError"):
+        assert res["structuredContent"] == payload, "structured and text results differ"
     return payload, bool(res.get("isError"))
 
 
@@ -43,6 +52,38 @@ def psql(sql):
 
 alice_id = psql("select id from users where external_id='alice'")
 bob_id = psql("select id from users where external_id='bob'")
+
+# --- MCP lifecycle and discovery ---
+def rpc_request(method, params=None, notification=False):
+    global _id
+    _id += 1
+    body = {"jsonrpc": "2.0", "method": method}
+    if params is not None:
+        body["params"] = params
+    if not notification:
+        body["id"] = _id
+    req = urllib.request.Request(URL, data=json.dumps(body).encode(), headers={
+        "Content-Type": "application/json", "Accept": "application/json, text/event-stream",
+        "Authorization": f"Bearer {TOK_A}", "MCP-Protocol-Version": "2025-03-26"})
+    raw = urllib.request.urlopen(req).read().decode()
+    if notification:
+        return None
+    data = next((l[5:] for l in raw.splitlines() if l.startswith("data:")), raw)
+    return json.loads(data)
+
+init = rpc_request("initialize", {"protocolVersion": "2025-03-26", "capabilities": {},
+                                 "clientInfo": {"name": "agora-smoke", "version": "1"}})
+check("MCP initialize succeeds", "result" in init and "tools" in init["result"]["capabilities"], init)
+rpc_request("notifications/initialized", notification=True)
+discovery = rpc_request("tools/list")
+tools = discovery["result"]["tools"]
+check("all 5 MCP tools are discoverable", {t["name"] for t in tools} ==
+      {"submit_offer", "submit_want", "search_matches", "get_my_items", "deactivate_item"}, tools)
+check("tool annotations distinguish read and write", next(t for t in tools if t["name"] == "get_my_items")["annotations"]["readOnlyHint"]
+      and not next(t for t in tools if t["name"] == "submit_offer")["annotations"]["readOnlyHint"])
+ready_url = URL.rsplit("/", 1)[0] + "/ready"
+ready = json.loads(urllib.request.urlopen(ready_url).read())
+check("readiness reports database reachable and embedder configured", ready.get("ok") is True, ready)
 
 # --- auth ---
 p, err = call("get_my_items", {})
@@ -72,6 +113,11 @@ check("no self-matches anywhere (owner_a != owner_b)", all(x["owner_a"] != x["ow
 check("top match is Bob's Android want", matches and matches[0]["item_b"] == ids["b_android"], matches[:1])
 check("ranking: android want scores above tile want",
       len(matches) == 2 and matches[0]["score"] > matches[1]["score"], [x["score"] for x in matches])
+cards = m.get("items", [])
+check("search returns readable public candidate cards in match order",
+      len(cards) == len(matches) and all(i["schema"] == "synapse/v0" and i["active"] and i["owner_id"] == bob_id for i in cards)
+      and all(i["item_id"] == match["item_b"] for i, match in zip(cards, matches))
+      and cards[0]["text"].startswith("Нужен консультант"), cards)
 top = matches[0]
 check("match follows synapse/v0 shape",
       set(top) == {"schema", "match_id", "item_a", "item_b", "owner_a", "owner_b", "score", "source", "created_at", "outcome"}
@@ -87,6 +133,9 @@ check("matches table has exactly 1 row for that pair",
 mw, _ = call("search_matches", {"item_id": ids["a_want"]}, TOK_A)
 check("Alice's want -> Bob's English offer is top; item_a=offer side",
       mw["matches"][0]["item_a"] == ids["b_english"] and mw["matches"][0]["item_b"] == ids["a_want"], mw["matches"][:1])
+
+check("want-side search returns offer cards", mw["items"][0]["item_id"] == ids["b_english"]
+      and mw["items"][0]["type"] == "offer", mw)
 
 # --- get_my_items ---
 gi, _ = call("get_my_items", {}, TOK_A)
@@ -108,6 +157,7 @@ d2, err_twice = call("deactivate_item", {"item_id": ids["b_android"]}, TOK_B)
 check("deactivating twice -> error (no false success)", err_twice, d2)
 m3, _ = call("search_matches", {"item_id": ids["a_off"]}, TOK_A)
 check("deactivated item disappears from matches", all(x["item_b"] != ids["b_android"] for x in m3["matches"]), m3)
+check("deactivated item disappears from public cards", all(x["item_id"] != ids["b_android"] for x in m3["items"]), m3)
 
 # --- cross-user search: can Bob search matches for ALICE's item id? ---
 x, err = call("search_matches", {"item_id": ids["a_want"]}, TOK_B)
@@ -116,6 +166,16 @@ check("...error is identical to a nonexistent item (can't probe ids)",
       x == call("search_matches", {"item_id": "00000000-0000-0000-0000-000000000000"}, TOK_B)[0], x)
 x, err = call("search_matches", {"item_id": ids["b_android"]}, TOK_B)
 check("searching from an inactive (withdrawn) item is rejected", err, x)
+
+# --- bounded input validation ---
+for label, args in [("blank text", {"text": "   "}), ("oversized text", {"text": "x" * 8001}),
+                    ("too many tags", {"text": "ok", "tags": ["x"] * 21})]:
+    payload, bad = call("submit_offer", args, TOK_A)
+    check(label + " is rejected before inserting", bad, payload)
+check("invalid submissions created no rows", psql("select count(*) from items") == "5")
+for value in [0, 51, 1.5]:
+    payload, bad = call("search_matches", {"item_id": ids["a_off"], "limit": value}, TOK_A)
+    check("invalid limit " + str(value) + " rejected", bad, payload)
 
 # --- garbage input ---
 g, err = call("search_matches", {"item_id": "not-a-uuid"}, TOK_A)

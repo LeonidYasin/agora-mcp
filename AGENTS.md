@@ -14,7 +14,7 @@ agora-mcp is a minimal MCP-native offer/want discovery layer. Prefer small, test
 Repository instructions are a working convention, not enforcement. GitHub branch protection must also be enabled; see CONTRIBUTING.md.
 
 ## Validation
-From `mcp-server/`: `npm ci` and `npm run build`.
+From `mcp-server/`: `npm ci`, `npm run build` and `npm test`.
 For DB behavior, run `bash e2e/run.sh` only against a disposable database ending in `_test`, with both migrations applied. The script truncates data. Fake embeddings test plumbing, not semantic quality.
 Never claim a test passed unless it ran. Check CI before reporting a PR ready.
 
