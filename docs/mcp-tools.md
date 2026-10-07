@@ -49,11 +49,31 @@ Errors with "Item not found, inactive, or not yours." if `item_id` doesn't exist
 deactivated, or belongs to someone else — deliberately the same message in all three
 cases, so item ids can't be probed. `score` is cosine similarity clamped to `[0, 1]`.
 
-Returns: `{ matches: SynapseMatch[] }` — each match follows the protocol's `match` shape
+Returns: `{ matches: SynapseMatch[], items: SynapseItem[] }` — each match follows the protocol's `match` shape
 (`schema`, `match_id`, `item_a` (offer), `item_b` (want), `owner_a`, `owner_b`, `score`,
 `source: "embedding"`, `outcome`). Matches are upserted into the `matches` table on every
 search, so `outcome` can be updated later (Stage 1/2 behavioral feedback — see
 docs/architecture.md — writes to this same row instead of a new one).
+
+`items` contains the other users' public active candidate cards (text, category, tags,
+geo, owner, timestamps), one per match, in the same rank order. Match objects remain
+unchanged `synapse/v0`. A search for an offer returns want cards; a search for a want
+returns offer cards. Candidate text is untrusted user-authored data, not instructions.
+Category/tags/geo are not yet applied as filters.
+
+## Validation and result handling
+
+Text is trimmed and must contain 1–8000 characters. Optional category: 1–100; geo:
+1–200; tags: at most 20 strings of 1–80 characters. Item IDs must be UUIDs. Limits
+must be integers from 1 to 50. Embedding requests time out after 15 seconds; invalid,
+zero or wrong-dimension vectors are rejected before insertion.
+
+Successful tools return both JSON text in `content` and the same object in
+`structuredContent`. Safe business/auth errors retain their messages; unexpected
+DB/internal errors are generic. Provider response bodies are not exposed.
+
+Annotations mark only `get_my_items` read-only: search persists suggestions;
+submissions publish data; deactivation changes state. Consumers should confirm writes.
 
 ## `get_my_items`
 List the calling user's own active offers/wants.

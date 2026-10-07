@@ -5,6 +5,8 @@ const { Pool } = pg;
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  connectionTimeoutMillis: 5000,
+  query_timeout: 5000,
 });
 
 export async function getUserIdByTokenHash(tokenHash: string): Promise<string | null> {
@@ -83,15 +85,18 @@ export async function searchMatches(params: {
 
   // GREATEST(0, ...): cosine similarity can be negative for some models, but the
   // synapse/v0 `match.score` contract is [0, 1].
-  const candidates = await pool.query<{
+  const candidates = await pool.query<InternalItemRow & {
     item_id: string;
     owner_user_id: string;
     score: number;
   }>(
-    `SELECT i.id AS item_id, i.user_id AS owner_user_id,
-            GREATEST(0, 1 - (i.embedding <=> s.embedding)) AS score
+    `SELECT i.id, i.user_id, i.type, i.raw_text, i.category, i.tags, i.geo,
+            i.active, i.created_at, i.updated_at,
+            i.id AS item_id, i.user_id AS owner_user_id,
+            LEAST(1, GREATEST(0, 1 - (i.embedding <=> s.embedding))) AS score
      FROM items i, (SELECT embedding FROM items WHERE id = $1) s
      WHERE i.active = true
+       AND i.embedding IS NOT NULL AND s.embedding IS NOT NULL
        AND i.type <> $3::item_type
        AND i.user_id <> $2
      ORDER BY i.embedding <=> s.embedding
@@ -117,6 +122,7 @@ export async function searchMatches(params: {
     const match = upserted.rows[0];
 
     rows.push({
+      candidate,
       match_id: match.id,
       offer_item_id: offerItemId,
       want_item_id: wantItemId,

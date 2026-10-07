@@ -16,6 +16,7 @@ Use Node.js 22 and npm:
 cd mcp-server
 npm ci
 npm run build
+npm test
 ```
 
 Smoke tests need PostgreSQL 16 with pgvector and a disposable database whose name ends in `_test`. Apply both migrations with `psql -v ON_ERROR_STOP=1`, then run `bash e2e/run.sh`. See [the E2E guide](mcp-server/e2e/README.md). The test truncates tables; never use production data. Fake embeddings verify integration and isolation, not semantic quality.

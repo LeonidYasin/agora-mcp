@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { ToolError } from "./errors.js";
 import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import type { ServerRequest, ServerNotification } from "@modelcontextprotocol/sdk/types.js";
 import { getUserIdByTokenHash } from "./db.js";
@@ -22,7 +23,7 @@ function extractBearerToken(extra: ToolExtra): string | null {
   return match ? match[1] : null;
 }
 
-export class AuthError extends Error {
+export class AuthError extends ToolError {
   constructor(message: string) {
     super(message);
     this.name = "AuthError";

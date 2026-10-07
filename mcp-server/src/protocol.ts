@@ -54,6 +54,7 @@ export interface InternalItemRow {
 }
 
 export interface InternalMatchRow {
+  candidate: InternalItemRow;
   match_id: string;
   offer_item_id: string;
   want_item_id: string;
