@@ -73,15 +73,16 @@ npm run build && npm start   # or: npm run dev
 
 For a production-ish setup, run it under **systemd** (`Restart=on-failure`,
 `EnvironmentFile=` for the vars above) rather than a bare `npm start`, and put it behind
-**nginx + Let's Encrypt** if it needs to be reachable from outside the VPS — the bearer
+**Caddy (automatic HTTPS)** if it needs to be reachable from outside the VPS — the bearer
 token goes out in a plain header, so it must never travel over unencrypted HTTP.
 
 Server listens on `http://127.0.0.1:3010/mcp` by default (`HOST`/`PORT` env vars to
 change). `GET /health` for a liveness check. `GET /ready` checks DB connectivity and configured
 embedding provider (not migrations, provider availability or semantic quality).
 
-For deployment alongside an existing MCP server and a two-user Notion acceptance test,
-see [`docs/testing-from-notion.md`](docs/testing-from-notion.md).
+For isolated deployment alongside the existing MCP server, use the **Caddy + systemd**
+[templates and runbook](deploy/README.md), matching the established `mcp-server` VPS setup.
+For a two-user Notion acceptance test, see [`docs/testing-from-notion.md`](docs/testing-from-notion.md).
 
 Every tool call must carry `Authorization: Bearer <raw-token>` for a token issued as
 above.
