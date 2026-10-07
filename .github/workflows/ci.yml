@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: mcp-server
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: mcp-server/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  smoke:
+    name: Smoke test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: agora
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: agora_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U agora -d agora_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      # Disposable CI service credentials; never used for a deployed server.
+      DATABASE_URL: postgres://agora:ci-only-password@127.0.0.1:5432/agora_test
+    defaults:
+      run:
+        working-directory: mcp-server
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: mcp-server/package-lock.json
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - run: npm ci
+      - run: npm run build
+      - name: Apply migrations to disposable database
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f ../db/migrations/001_init.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f ../db/migrations/002_auth_and_protocol_alignment.sql
+      - name: Run MCP smoke tests with fake embedder
+        run: bash e2e/run.sh
