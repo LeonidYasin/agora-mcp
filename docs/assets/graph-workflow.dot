@@ -1,0 +1,20 @@
+digraph G {
+graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", splines=polyline];
+node [shape=box, style="rounded,filled", fontname="Arial", fontsize=16, margin="0.2,0.15", color="#E6E5E3", fontcolor="#2C2C2B"];
+edge [fontname="Arial", fontsize=13, color="#7D7A75", fontcolor="#55534F", arrowsize=0.7];
+"issue" [label="Issue", fillcolor="#F0EFED"];
+"branch" [label="Отдельная ветка", fillcolor="#F0EFED"];
+"pr" [label="PR + review", fillcolor="#F0EFED"];
+"ci" [label="Build / unit / smoke / docs", fillcolor="#F0EFED"];
+"main" [label="Защищённая main", fillcolor="#F0EFED"];
+"pages" [label="Статические GitHub Pages", fillcolor="#E5F2FC"];
+"manual" [label="Разрешённый VPS deploy", fillcolor="#F0EFED"];
+"systemd" [label="systemd · user agora", fillcolor="#F0EFED"];
+"issue" -> "branch" [label="scope first", style=solid];
+"branch" -> "pr" [label="linked issue", style=solid];
+"pr" -> "ci" [label="checks", style=solid];
+"ci" -> "main" [label="review + explicit merge", style=solid];
+"main" -> "pages" [label="docs build → deploy", style=solid];
+"main" -> "manual" [label="separate authorization", style=solid];
+"manual" -> "systemd" [label="runtime update", style=solid];
+}

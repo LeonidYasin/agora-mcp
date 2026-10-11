@@ -1,0 +1,21 @@
+digraph G {
+graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", splines=polyline];
+node [shape=box, style="rounded,filled", fontname="Arial", fontsize=16, margin="0.2,0.15", color="#E6E5E3", fontcolor="#2C2C2B"];
+edge [fontname="Arial", fontsize=13, color="#7D7A75", fontcolor="#55534F", arrowsize=0.7];
+"agora" [label="Agora MCP", fillcolor="#E5F2FC"];
+"agent-a" [label="Личный агент A", fillcolor="#E5F2FC"];
+"agent-b" [label="Личный агент B", fillcolor="#E5F2FC"];
+"caddy" [label="Caddy /agora/*", fillcolor="#F0EFED"];
+"node" [label="Node 22 · MCP :3011", fillcolor="#F0EFED"];
+"postgres" [label="PostgreSQL + pgvector", fillcolor="#E8F1EC"];
+"jina" [label="Jina v3 · 1024", fillcolor="#FBEBDE"];
+"systemd" [label="systemd · user agora", fillcolor="#F0EFED"];
+"legacy" [label="Старые MCP :3001/:3002", fillcolor="#F0EFED"];
+"agent-a" -> "caddy" [label="HTTPS + token A", style=solid];
+"agent-b" -> "caddy" [label="HTTPS + token B", style=solid];
+"caddy" -> "node" [label="strip /agora; Host loopback", style=solid];
+"caddy" -> "legacy" [label="existing X-Api-Key routes", style=solid];
+"systemd" -> "node" [label="ExecStart / privileges", style=solid];
+"node" -> "postgres" [label="parameterized SQL", style=solid];
+"node" -> "jina" [label="publish text → vector", style=solid];
+}

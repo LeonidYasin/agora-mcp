@@ -1,0 +1,34 @@
+mindmap
+  root((Agora MCP))
+    Смысл
+      Слой offer/want discovery
+      Обмен вне площадки
+      Invite-only пилот
+    MCP
+      submit_offer / submit_want
+      search_matches + cards
+      get_my_items / deactivate
+    Данные
+      users / items / matches
+      pgvector 1024
+      synapse/v0 item + match
+    VPS
+      root admin; user agora
+      Node 22 / systemd
+      Caddy /agora/; Jina API
+    Защита
+      Bearer hash / ownership
+      Validation / deadlines
+      Untrusted public text
+    Тесты
+      Unit + Postgres CI
+      Live self-owner checks
+      Independent A/B pending
+    Документация
+      Fresh VPS / rollback
+      Parallel chat playbook
+      Static Pages / typed graph
+    Следующее
+      A/B live acceptance
+      Quota + model versioning
+      Benchmark before ranking

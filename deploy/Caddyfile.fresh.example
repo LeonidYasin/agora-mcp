@@ -1,0 +1,11 @@
+# Fresh VPS only. Replace the hostname after DNS points at this VPS.
+agora.example.invalid {
+    handle_path /agora/* {
+        reverse_proxy 127.0.0.1:3011 {
+            header_up Host {upstream_hostport}
+        }
+    }
+    handle {
+        respond "Not found" 404
+    }
+}

@@ -1,0 +1,12 @@
+# Illustrative shared site. Preserve the real existing auth/routes.
+agora.example.invalid {
+    handle_path /agora/* {
+        reverse_proxy 127.0.0.1:3011 {
+            header_up Host {upstream_hostport}
+        }
+    }
+    # This is only a placeholder fallback, not your existing MCP configuration.
+    handle {
+        respond "Not found" 404
+    }
+}
