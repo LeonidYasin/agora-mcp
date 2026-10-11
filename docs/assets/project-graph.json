@@ -2172,6 +2172,30 @@
       "status": "documented"
     },
     {
+      "from": "file:docs/mcp-tools.md",
+      "to": "file:docs/identity-and-access.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/mcp-tools.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/mcp-tools.md",
+      "to": "file:docs/economy.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/mcp-tools.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/mcp-tools.md",
+      "to": "file:docs/vision.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/mcp-tools.md",
+      "status": "documented"
+    },
+    {
       "from": "file:docs/parallel-testing.md",
       "to": "file:docs/identity-and-access.md",
       "label": "documents / links",
