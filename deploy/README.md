@@ -1,5 +1,7 @@
 # Deployment entry point
 
+Эти helpers обслуживают текущий manual-token пилот. Они не реализуют публичный onboarding, продуктовые приглашения или оплату. [Целевой дизайн](../docs/identity-and-access.md).
+
 Основной сценарий: **root administration, отдельный unprivileged сервис, общий домен/Caddy и `/agora/`**. Старые MCP-сервисы и их авторизация не заменяются.
 
 - [Новый VPS с нуля](../docs/install-fresh-vps.md).

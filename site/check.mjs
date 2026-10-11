@@ -25,3 +25,12 @@ for(const source of sources){
  }
 }
 console.log(`PASS ${pages.length} HTML routes, ${refs} local references, graph endpoints/sources/TS imports.`);
+
+for(const id of ['selfservice','invites','usage','payments','republic','parliament','electoral','courts']){
+ const n=graph.nodes.find(x=>x.id===id);if(!n||n.status!=='planned')throw new Error('Target capability must stay planned: '+id);
+}
+for(const e of graph.edges.filter(x=>x.kind==='planned'))if(e.status!=='planned')throw new Error('Planned edge status missing');
+for(const slug of ['vision','access','economy','republic'])if(!pages.some(p=>p.slug===slug))throw new Error('Vision route missing');
+const topics=JSON.parse(fs.readFileSync(path.join(root,'docs/assets/mindmap-topics.json'),'utf8'));
+const maps=fs.readFileSync(path.join(out,'maps.html'),'utf8');for(const topic of Object.keys(topics))if(!maps.includes(topic))throw new Error('Mobile mindmap topic missing');
+console.log('PASS target-layer planned status and shared desktop/mobile mindmap topics.');

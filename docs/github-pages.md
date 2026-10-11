@@ -30,3 +30,7 @@ PR CI всегда проверяет docs build, но не публикует �
 ## Обновление схем
 
 `python3 site/generate-maps.py` (нужен Graphviz dot) пересоздаёт data/SVG/DOT/Mermaid из runtime inventory и исходников. Диаграммы репозитория и доступные исходники не имеют секретов. Проверить визуально desktop/mobile и link audit; maps distinguish current, CI-only, pending and conceptual relations. Большой граф имеет readable grouped views и text edge table, а не одну нечитаемую картинку.
+
+## Полная задумка на сайте
+
+Разделы vision/access/economy/republic публикуются из тех же Markdown-файлов. Planned-схемы отделены от deployed runtime; home сохраняет market-first приоритет. Google/OAuth, billing и институты не становятся работающими функциями от публикации сайта.

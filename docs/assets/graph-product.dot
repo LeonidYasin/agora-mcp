@@ -1,0 +1,20 @@
+digraph G {
+graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", splines=polyline];
+node [shape=box, style="rounded,filled", fontname="Arial", fontsize=16, margin="0.2,0.15", color="#E6E5E3", fontcolor="#2C2C2B"];
+edge [fontname="Arial", fontsize=13, color="#7D7A75", fontcolor="#55534F", arrowsize=0.7];
+"platform" [label="Полная Agora\n[план]", fillcolor="#E5F2FC"];
+"market" [label="Маркет offer / want\nсейчас: Stage 0", fillcolor="#E5F2FC"];
+"google" [label="Google identity\n[план]", fillcolor="#FBEBDE"];
+"selfservice" [label="MCP OAuth / аккаунт\n[план]", fillcolor="#FBEBDE"];
+"invites" [label="Приглашения / доступ\n[план]", fillcolor="#FBEBDE"];
+"usage" [label="Учёт / лимиты / кредиты\n[план]", fillcolor="#FBEBDE"];
+"payments" [label="Тарифы / оплаты\n[план]", fillcolor="#FBEBDE"];
+"republic" [label="Республика\n[план]", fillcolor="#FBEBDE"];
+"platform" -> "market" [label="первый приоритет", style=dashed];
+"google" -> "selfservice" [label="внешний вход", style=dashed];
+"invites" -> "selfservice" [label="политика доступа", style=dashed];
+"selfservice" -> "market" [label="постоянный owner", style=dashed];
+"payments" -> "usage" [label="кредиты / оплата", style=dashed];
+"usage" -> "market" [label="лимиты / учёт", style=dashed];
+"platform" -> "republic" [label="будущие институты", style=dashed];
+}

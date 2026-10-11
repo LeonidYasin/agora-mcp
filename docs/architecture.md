@@ -1,5 +1,7 @@
 # Архитектура
 
+Два уровня: **существующий market runtime** и **целевая платформа**. Схемы ниже не означают, что planned-модули уже запущены. Market-first приоритет и полная задумка описаны в [vision](vision.md).
+
 ## Текущий Stage 0
 
 ```text
@@ -46,3 +48,21 @@ Caddy также обслуживает старые MCP backend на 3001/3002 
 ## Связи
 
 [Mindmap и полный граф](project-maps.md) отделяют runtime/dependency/schema/deployment/documentation/test и conceptual ecosystem relations. NoKing/Civis/synapse2 не вызываются автоматически. Протокол включает больше сущностей, чем реализовано в этой БД/API.
+
+## Целевые границы платформы — planned
+
+| Область | Ответственность | Планируемая связь |
+|---|---|---|
+| Market | Items, поиск, актуальность, ownership | Основной MCP delivery track |
+| Identity/session | Внешний вход → постоянный Agora user_id → полномочия клиента | Google/OAuth сначала; телефон позже; не Google bearer в tools |
+| Access/invitations | Условия входа, приглашения, отзыв, рефералы | Независимая проверка права доступа |
+| Usage/economy | Учёт ресурсов, лимиты, кредиты, позднее оплаты | Предварительный admission и корректные reservation/settlement |
+| Republic | Правила/мандаты, парламент, выборы и суды | Отдельные процедуры и аудит; не middleware тарифов |
+
+Возможные будущие логические данные: identity links, sessions, invites, usage events, credit/payment ledger, rules/mandates, proposals/elections/cases/appeals. **Это не существующие таблицы и не утверждённая миграция.** Не требуется заранее разбивать всё на микросервисы: границы ответственности важнее инфраструктурного усложнения.
+
+Целевой защищённый вызов: полномочия клиента → user_id → политика доступа → лимит/разрешение операции → market ownership → выполнение → usage result. Между provider cost и списанием клиентского кредита нет автоматического равенства; нужны правила ошибок и повторов. Оплата/инвайт не выдаёт политические права.
+
+При переходе сохранить users/items/matches и владение, добавить отдельные миграции и безопасную привязку личности. Публичный OAuth metadata, авторизация, платежи и институты сейчас отсутствуют; нельзя направлять клиентов на придуманные endpoints. Root token helper — временный мост пилота, не целевой интерфейс.
+
+[Identity/access](identity-and-access.md) · [Экономика](economy.md) · [Институты](governance.md) · [Roadmap](../ROADMAP.md).
