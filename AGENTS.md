@@ -1,7 +1,8 @@
 # Repository instructions
 
 ## Scope
-agora-mcp is a minimal MCP-native offer/want discovery layer. Prefer small, testable changes. Do not add transaction management, chat, reputation, decentralization or OAuth without an explicit issue.
+Agora's immediate delivery priority is the MCP-native offer/want market. Full product direction includes public self-service identity, invitations/access policy, usage billing and future republican institutions (parliament, courts, electoral bodies). See docs/vision.md and ROADMAP.md.
+Keep deployed/manual-token pilot behavior distinct from target/planned capabilities. Prefer small, testable changes. Do not implement OAuth, payments, constitutional powers, transaction management or other future modules without a separately scoped explicit issue. Documentation of vision is not implementation/deployment authorization. Never conflate payment/invitations with ownership or political rights.
 
 ## Required workflow
 1. Inspect current source, open issues and PRs before changing anything.

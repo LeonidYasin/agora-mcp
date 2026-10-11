@@ -1,0 +1,110 @@
+[
+  {
+    "file": "README.md",
+    "slug": "index",
+    "title": "Обзор",
+    "group": "Проект"
+  },
+  {
+    "file": "docs/vision.md",
+    "slug": "vision",
+    "title": "Задумка и приоритет",
+    "group": "Полная задумка"
+  },
+  {
+    "file": "docs/identity-and-access.md",
+    "slug": "access",
+    "title": "Вход и приглашения",
+    "group": "Полная задумка"
+  },
+  {
+    "file": "docs/economy.md",
+    "slug": "economy",
+    "title": "Экономика использования",
+    "group": "Полная задумка"
+  },
+  {
+    "file": "docs/governance.md",
+    "slug": "republic",
+    "title": "Республиканские институты",
+    "group": "Полная задумка"
+  },
+  {
+    "file": "ROADMAP.md",
+    "slug": "roadmap",
+    "title": "Roadmap",
+    "group": "Проект"
+  },
+  {
+    "file": "docs/project-maps.md",
+    "slug": "maps",
+    "title": "Mindmap и связи",
+    "group": "Проект"
+  },
+  {
+    "file": "docs/architecture.md",
+    "slug": "architecture",
+    "title": "Архитектура",
+    "group": "Проект"
+  },
+  {
+    "file": "docs/install-fresh-vps.md",
+    "slug": "install",
+    "title": "Новый VPS с нуля",
+    "group": "Установка"
+  },
+  {
+    "file": "docs/deploy-shared-domain.md",
+    "slug": "shared-domain",
+    "title": "Общий домен /agora/",
+    "group": "Установка"
+  },
+  {
+    "file": "docs/operations.md",
+    "slug": "operations",
+    "title": "Эксплуатация и секреты",
+    "group": "Установка"
+  },
+  {
+    "file": "docs/testing-from-notion.md",
+    "slug": "notion",
+    "title": "Подключить Notion",
+    "group": "Проверка"
+  },
+  {
+    "file": "docs/parallel-testing.md",
+    "slug": "parallel",
+    "title": "Два параллельных чата",
+    "group": "Проверка"
+  },
+  {
+    "file": "docs/live-test-report.md",
+    "slug": "live-report",
+    "title": "Живой тест: результаты",
+    "group": "Проверка"
+  },
+  {
+    "file": "docs/mcp-tools.md",
+    "slug": "tools",
+    "title": "Контракт инструментов",
+    "group": "Справочник"
+  },
+  {
+    "file": "docs/synapse-protocol.md",
+    "slug": "protocol",
+    "title": "Synapse v0 · draft",
+    "group": "Справочник"
+  },
+  {
+    "file": "docs/github-pages.md",
+    "slug": "pages",
+    "title": "Сборка GitHub Pages",
+    "group": "Справочник"
+  },
+  {
+    "file": "CONTRIBUTING.md",
+    "slug": "contributing",
+    "title": "Issue → PR workflow",
+    "group": "Справочник"
+  }
+]

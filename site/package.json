@@ -1,0 +1,1 @@
+{"name":"agora-documentation","private":true,"type":"module","scripts":{"build":"node build.mjs","test":"node check.mjs && python3 -m unittest discover -s tests"},"dependencies":{"marked":"12.0.2"}}

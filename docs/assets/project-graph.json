@@ -1,0 +1,2383 @@
+{
+  "scope": "Repository and deployed market runtime plus explicitly PLANNED public access, economy and republican institutions; conceptual ecosystem is not federation.",
+  "nodes": [
+    {
+      "id": "agora",
+      "label": "Agora MCP",
+      "kind": "project",
+      "view": "runtime",
+      "source": "README.md",
+      "status": "implemented"
+    },
+    {
+      "id": "agent-a",
+      "label": "Личный агент A",
+      "kind": "client",
+      "view": "runtime",
+      "source": "docs/parallel-testing.md",
+      "status": "implemented"
+    },
+    {
+      "id": "agent-b",
+      "label": "Личный агент B",
+      "kind": "client",
+      "view": "runtime",
+      "source": "docs/parallel-testing.md",
+      "status": "implemented"
+    },
+    {
+      "id": "caddy",
+      "label": "Caddy /agora/*",
+      "kind": "service",
+      "view": "runtime",
+      "source": "deploy/enable-agora-caddy.py",
+      "status": "implemented"
+    },
+    {
+      "id": "node",
+      "label": "Node 22 · MCP :3011",
+      "kind": "service",
+      "view": "runtime",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "postgres",
+      "label": "PostgreSQL + pgvector",
+      "kind": "storage",
+      "view": "runtime",
+      "source": "db/migrations/001_init.sql",
+      "status": "implemented"
+    },
+    {
+      "id": "jina",
+      "label": "Jina v3 · 1024",
+      "kind": "provider",
+      "view": "runtime",
+      "source": "deploy/configure-jina.py",
+      "status": "implemented"
+    },
+    {
+      "id": "systemd",
+      "label": "systemd · user agora",
+      "kind": "service",
+      "view": "runtime",
+      "source": "deploy/agora-mcp.service",
+      "status": "implemented"
+    },
+    {
+      "id": "legacy",
+      "label": "Старые MCP :3001/:3002",
+      "kind": "service",
+      "view": "runtime",
+      "source": "docs/deploy-shared-domain.md",
+      "status": "implemented"
+    },
+    {
+      "id": "users",
+      "label": "users · token_hash",
+      "kind": "table",
+      "view": "data",
+      "source": "db/migrations/002_auth_and_protocol_alignment.sql",
+      "status": "implemented"
+    },
+    {
+      "id": "items",
+      "label": "items · offer / want",
+      "kind": "table",
+      "view": "data",
+      "source": "db/migrations/001_init.sql",
+      "status": "implemented"
+    },
+    {
+      "id": "matches",
+      "label": "matches · UNIQUE pair",
+      "kind": "table",
+      "view": "data",
+      "source": "db/migrations/002_auth_and_protocol_alignment.sql",
+      "status": "implemented"
+    },
+    {
+      "id": "auth",
+      "label": "Bearer → SHA-256",
+      "kind": "security",
+      "view": "data",
+      "source": "mcp-server/src/auth.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "search",
+      "label": "Cosine search + upsert",
+      "kind": "logic",
+      "view": "data",
+      "source": "mcp-server/src/db.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "wire",
+      "label": "synapse/v0 item / match",
+      "kind": "schema",
+      "view": "data",
+      "source": "mcp-server/src/protocol.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "issue",
+      "label": "Issue",
+      "kind": "workflow",
+      "view": "workflow",
+      "source": "CONTRIBUTING.md",
+      "status": "documented"
+    },
+    {
+      "id": "branch",
+      "label": "Отдельная ветка",
+      "kind": "workflow",
+      "view": "workflow",
+      "source": "AGENTS.md",
+      "status": "documented"
+    },
+    {
+      "id": "pr",
+      "label": "PR + review",
+      "kind": "workflow",
+      "view": "workflow",
+      "source": ".github/pull_request_template.md",
+      "status": "documented"
+    },
+    {
+      "id": "ci",
+      "label": "Build / unit / smoke / docs",
+      "kind": "workflow",
+      "view": "workflow",
+      "source": ".github/workflows/ci.yml",
+      "status": "documented"
+    },
+    {
+      "id": "main",
+      "label": "Защищённая main",
+      "kind": "workflow",
+      "view": "workflow",
+      "source": "CONTRIBUTING.md",
+      "status": "documented"
+    },
+    {
+      "id": "pages",
+      "label": "Статические GitHub Pages",
+      "kind": "documentation",
+      "view": "workflow",
+      "source": ".github/workflows/pages.yml",
+      "status": "prepared"
+    },
+    {
+      "id": "manual",
+      "label": "Разрешённый VPS deploy",
+      "kind": "workflow",
+      "view": "workflow",
+      "source": "docs/operations.md",
+      "status": "documented"
+    },
+    {
+      "id": "noking",
+      "label": "NoKing · идеи обмена",
+      "kind": "concept",
+      "view": "ecosystem",
+      "source": "README.md",
+      "status": "conceptual"
+    },
+    {
+      "id": "civis",
+      "label": "Civis · отдельный проект",
+      "kind": "concept",
+      "view": "ecosystem",
+      "source": "README.md",
+      "status": "conceptual"
+    },
+    {
+      "id": "mcp-server",
+      "label": "mcp-server · canonical protocol",
+      "kind": "schema",
+      "view": "ecosystem",
+      "source": "docs/synapse-protocol.md",
+      "status": "implemented"
+    },
+    {
+      "id": "synapse",
+      "label": "synapse · общий формат",
+      "kind": "concept",
+      "view": "ecosystem",
+      "source": "docs/synapse-protocol.md",
+      "status": "conceptual"
+    },
+    {
+      "id": "synapse2",
+      "label": "synapse2 · общий формат",
+      "kind": "concept",
+      "view": "ecosystem",
+      "source": "docs/synapse-protocol.md",
+      "status": "conceptual"
+    },
+    {
+      "id": "platform",
+      "label": "Полная Agora",
+      "kind": "project",
+      "view": "product",
+      "source": "docs/vision.md",
+      "status": "planned"
+    },
+    {
+      "id": "market",
+      "label": "Маркет offer / want\nсейчас: Stage 0",
+      "kind": "logic",
+      "view": "product",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "google",
+      "label": "Google identity",
+      "kind": "concept",
+      "view": "product",
+      "source": "docs/identity-and-access.md",
+      "status": "planned"
+    },
+    {
+      "id": "selfservice",
+      "label": "MCP OAuth / аккаунт",
+      "kind": "concept",
+      "view": "product",
+      "source": "docs/identity-and-access.md",
+      "status": "planned"
+    },
+    {
+      "id": "invites",
+      "label": "Приглашения / доступ",
+      "kind": "concept",
+      "view": "product",
+      "source": "docs/identity-and-access.md",
+      "status": "planned"
+    },
+    {
+      "id": "usage",
+      "label": "Учёт / лимиты / кредиты",
+      "kind": "concept",
+      "view": "product",
+      "source": "docs/economy.md",
+      "status": "planned"
+    },
+    {
+      "id": "payments",
+      "label": "Тарифы / оплаты",
+      "kind": "concept",
+      "view": "product",
+      "source": "docs/economy.md",
+      "status": "planned"
+    },
+    {
+      "id": "republic",
+      "label": "Республика",
+      "kind": "concept",
+      "view": "product",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "id": "constitution",
+      "label": "Правила и права",
+      "kind": "concept",
+      "view": "governance",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "id": "parliament",
+      "label": "Парламент",
+      "kind": "concept",
+      "view": "governance",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "id": "electoral",
+      "label": "Избирательные органы",
+      "kind": "concept",
+      "view": "governance",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "id": "courts",
+      "label": "Суды",
+      "kind": "concept",
+      "view": "governance",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "id": "appeals",
+      "label": "Апелляции / гарантии",
+      "kind": "concept",
+      "view": "governance",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "id": "mandates",
+      "label": "Полномочия / мандаты",
+      "kind": "concept",
+      "view": "governance",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "id": "audit",
+      "label": "Аудит / приватность",
+      "kind": "concept",
+      "view": "governance",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "id": "file:.github/ISSUE_TEMPLATE/config.yml",
+      "label": ".github/ISSUE_TEMPLATE/config.yml",
+      "kind": "file",
+      "view": "repository",
+      "source": ".github/ISSUE_TEMPLATE/config.yml",
+      "status": "documented"
+    },
+    {
+      "id": "file:.github/ISSUE_TEMPLATE/task.yml",
+      "label": ".github/ISSUE_TEMPLATE/task.yml",
+      "kind": "file",
+      "view": "repository",
+      "source": ".github/ISSUE_TEMPLATE/task.yml",
+      "status": "documented"
+    },
+    {
+      "id": "file:.github/pull_request_template.md",
+      "label": ".github/pull_request_template.md",
+      "kind": "file",
+      "view": "repository",
+      "source": ".github/pull_request_template.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:.github/workflows/ci.yml",
+      "label": ".github/workflows/ci.yml",
+      "kind": "file",
+      "view": "repository",
+      "source": ".github/workflows/ci.yml",
+      "status": "documented"
+    },
+    {
+      "id": "file:.github/workflows/pages.yml",
+      "label": ".github/workflows/pages.yml",
+      "kind": "file",
+      "view": "repository",
+      "source": ".github/workflows/pages.yml",
+      "status": "documented"
+    },
+    {
+      "id": "file:.gitignore",
+      "label": ".gitignore",
+      "kind": "file",
+      "view": "repository",
+      "source": ".gitignore",
+      "status": "documented"
+    },
+    {
+      "id": "file:AGENTS.md",
+      "label": "AGENTS.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "AGENTS.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:CONTRIBUTING.md",
+      "label": "CONTRIBUTING.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "CONTRIBUTING.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:README.md",
+      "label": "README.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:ROADMAP.md",
+      "label": "ROADMAP.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "ROADMAP.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:db/migrations/001_init.sql",
+      "label": "db/migrations/001_init.sql",
+      "kind": "file",
+      "view": "repository",
+      "source": "db/migrations/001_init.sql",
+      "status": "documented"
+    },
+    {
+      "id": "file:db/migrations/002_auth_and_protocol_alignment.sql",
+      "label": "db/migrations/002_auth_and_protocol_alignment.sql",
+      "kind": "file",
+      "view": "repository",
+      "source": "db/migrations/002_auth_and_protocol_alignment.sql",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/Caddyfile.example",
+      "label": "deploy/Caddyfile.example",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/Caddyfile.example",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/Caddyfile.fresh.example",
+      "label": "deploy/Caddyfile.fresh.example",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/Caddyfile.fresh.example",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/Caddyfile.shared.example",
+      "label": "deploy/Caddyfile.shared.example",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/Caddyfile.shared.example",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/README.md",
+      "label": "deploy/README.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/README.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/agora-jina.env.example",
+      "label": "deploy/agora-jina.env.example",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/agora-jina.env.example",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/agora-mcp.service",
+      "label": "deploy/agora-mcp.service",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/agora-mcp.service",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/agora.env.example",
+      "label": "deploy/agora.env.example",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/agora.env.example",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/check-caddy.sh",
+      "label": "deploy/check-caddy.sh",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/check-caddy.sh",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/configure-jina.py",
+      "label": "deploy/configure-jina.py",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/configure-jina.py",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/enable-agora-caddy.py",
+      "label": "deploy/enable-agora-caddy.py",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/enable-agora-caddy.py",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/install-node22.sh",
+      "label": "deploy/install-node22.sh",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/install-node22.sh",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/provision-user.py",
+      "label": "deploy/provision-user.py",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/provision-user.py",
+      "status": "documented"
+    },
+    {
+      "id": "file:deploy/two-user-smoke.mjs",
+      "label": "deploy/two-user-smoke.mjs",
+      "kind": "file",
+      "view": "repository",
+      "source": "deploy/two-user-smoke.mjs",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/architecture.md",
+      "label": "docs/architecture.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/architecture.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/deploy-shared-domain.md",
+      "label": "docs/deploy-shared-domain.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/deploy-shared-domain.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/economy.md",
+      "label": "docs/economy.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/economy.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/github-pages.md",
+      "label": "docs/github-pages.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/github-pages.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/governance.md",
+      "label": "docs/governance.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/governance.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/identity-and-access.md",
+      "label": "docs/identity-and-access.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/identity-and-access.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/install-fresh-vps.md",
+      "label": "docs/install-fresh-vps.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/install-fresh-vps.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/live-test-report.md",
+      "label": "docs/live-test-report.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/live-test-report.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/mcp-tools.md",
+      "label": "docs/mcp-tools.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/mcp-tools.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/operations.md",
+      "label": "docs/operations.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/operations.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/parallel-testing.md",
+      "label": "docs/parallel-testing.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/parallel-testing.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/project-maps.md",
+      "label": "docs/project-maps.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/project-maps.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/synapse-protocol.md",
+      "label": "docs/synapse-protocol.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/synapse-protocol.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/testing-from-notion.md",
+      "label": "docs/testing-from-notion.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/testing-from-notion.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:docs/vision.md",
+      "label": "docs/vision.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "docs/vision.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/e2e/.gitignore",
+      "label": "mcp-server/e2e/.gitignore",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/e2e/.gitignore",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/e2e/README.md",
+      "label": "mcp-server/e2e/README.md",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/e2e/README.md",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/e2e/client.py",
+      "label": "mcp-server/e2e/client.py",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/e2e/client.py",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/e2e/fake_ollama.py",
+      "label": "mcp-server/e2e/fake_ollama.py",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/e2e/fake_ollama.py",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/e2e/run.sh",
+      "label": "mcp-server/e2e/run.sh",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/e2e/run.sh",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/package-lock.json",
+      "label": "mcp-server/package-lock.json",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/package-lock.json",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/package.json",
+      "label": "mcp-server/package.json",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/package.json",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/src/auth.ts",
+      "label": "mcp-server/src/auth.ts",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/src/auth.ts",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/src/db.ts",
+      "label": "mcp-server/src/db.ts",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/src/db.ts",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/src/embeddings.ts",
+      "label": "mcp-server/src/embeddings.ts",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/src/embeddings.ts",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/src/errors.ts",
+      "label": "mcp-server/src/errors.ts",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/src/errors.ts",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/src/index.ts",
+      "label": "mcp-server/src/index.ts",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/src/index.ts",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/src/protocol.ts",
+      "label": "mcp-server/src/protocol.ts",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/src/protocol.ts",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/src/validation.ts",
+      "label": "mcp-server/src/validation.ts",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/src/validation.ts",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/test/embeddings.test.mjs",
+      "label": "mcp-server/test/embeddings.test.mjs",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/test/embeddings.test.mjs",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/test/validation.test.mjs",
+      "label": "mcp-server/test/validation.test.mjs",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/test/validation.test.mjs",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/tsconfig.json",
+      "label": "mcp-server/tsconfig.json",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/tsconfig.json",
+      "status": "documented"
+    },
+    {
+      "id": "file:site/build.mjs",
+      "label": "site/build.mjs",
+      "kind": "file",
+      "view": "repository",
+      "source": "site/build.mjs",
+      "status": "documented"
+    },
+    {
+      "id": "file:site/check.mjs",
+      "label": "site/check.mjs",
+      "kind": "file",
+      "view": "repository",
+      "source": "site/check.mjs",
+      "status": "documented"
+    },
+    {
+      "id": "file:site/content.json",
+      "label": "site/content.json",
+      "kind": "file",
+      "view": "repository",
+      "source": "site/content.json",
+      "status": "documented"
+    },
+    {
+      "id": "file:site/generate-maps.py",
+      "label": "site/generate-maps.py",
+      "kind": "file",
+      "view": "repository",
+      "source": "site/generate-maps.py",
+      "status": "documented"
+    },
+    {
+      "id": "file:site/package-lock.json",
+      "label": "site/package-lock.json",
+      "kind": "file",
+      "view": "repository",
+      "source": "site/package-lock.json",
+      "status": "documented"
+    },
+    {
+      "id": "file:site/package.json",
+      "label": "site/package.json",
+      "kind": "file",
+      "view": "repository",
+      "source": "site/package.json",
+      "status": "documented"
+    },
+    {
+      "id": "file:site/style.css",
+      "label": "site/style.css",
+      "kind": "file",
+      "view": "repository",
+      "source": "site/style.css",
+      "status": "documented"
+    },
+    {
+      "id": "file:site/tests/test_deploy.py",
+      "label": "site/tests/test_deploy.py",
+      "kind": "file",
+      "view": "repository",
+      "source": "site/tests/test_deploy.py",
+      "status": "documented"
+    }
+  ],
+  "edges": [
+    {
+      "from": "agent-a",
+      "to": "caddy",
+      "label": "HTTPS + token A",
+      "kind": "runtime",
+      "source": "docs/parallel-testing.md",
+      "status": "implemented"
+    },
+    {
+      "from": "agent-b",
+      "to": "caddy",
+      "label": "HTTPS + token B",
+      "kind": "runtime",
+      "source": "docs/parallel-testing.md",
+      "status": "implemented"
+    },
+    {
+      "from": "caddy",
+      "to": "node",
+      "label": "strip /agora; Host loopback",
+      "kind": "deployment",
+      "source": "deploy/enable-agora-caddy.py",
+      "status": "implemented"
+    },
+    {
+      "from": "caddy",
+      "to": "legacy",
+      "label": "existing X-Api-Key routes",
+      "kind": "deployment",
+      "source": "docs/deploy-shared-domain.md",
+      "status": "implemented"
+    },
+    {
+      "from": "systemd",
+      "to": "node",
+      "label": "ExecStart / privileges",
+      "kind": "deployment",
+      "source": "deploy/agora-mcp.service",
+      "status": "implemented"
+    },
+    {
+      "from": "node",
+      "to": "postgres",
+      "label": "parameterized SQL",
+      "kind": "runtime",
+      "source": "mcp-server/src/db.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "node",
+      "to": "jina",
+      "label": "publish text → vector",
+      "kind": "runtime",
+      "source": "mcp-server/src/embeddings.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "auth",
+      "to": "users",
+      "label": "hash lookup → owner",
+      "kind": "security",
+      "source": "mcp-server/src/auth.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "users",
+      "to": "items",
+      "label": "user_id FK; owns",
+      "kind": "schema",
+      "source": "db/migrations/001_init.sql",
+      "status": "implemented"
+    },
+    {
+      "from": "items",
+      "to": "matches",
+      "label": "offer/want FK; pair",
+      "kind": "schema",
+      "source": "db/migrations/001_init.sql",
+      "status": "implemented"
+    },
+    {
+      "from": "items",
+      "to": "search",
+      "label": "active; other owner; opposite type",
+      "kind": "runtime",
+      "source": "mcp-server/src/db.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "search",
+      "to": "matches",
+      "label": "UPSERT score; keep outcome",
+      "kind": "runtime",
+      "source": "mcp-server/src/db.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "search",
+      "to": "wire",
+      "label": "candidate cards + match objects",
+      "kind": "runtime",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "issue",
+      "to": "branch",
+      "label": "scope first",
+      "kind": "workflow",
+      "source": "AGENTS.md",
+      "status": "documented"
+    },
+    {
+      "from": "branch",
+      "to": "pr",
+      "label": "linked issue",
+      "kind": "workflow",
+      "source": ".github/pull_request_template.md",
+      "status": "documented"
+    },
+    {
+      "from": "pr",
+      "to": "ci",
+      "label": "checks",
+      "kind": "workflow",
+      "source": ".github/workflows/ci.yml",
+      "status": "documented"
+    },
+    {
+      "from": "ci",
+      "to": "main",
+      "label": "review + explicit merge",
+      "kind": "workflow",
+      "source": "CONTRIBUTING.md",
+      "status": "documented"
+    },
+    {
+      "from": "main",
+      "to": "pages",
+      "label": "docs build → deploy",
+      "kind": "documentation",
+      "source": ".github/workflows/pages.yml",
+      "status": "documented"
+    },
+    {
+      "from": "main",
+      "to": "manual",
+      "label": "separate authorization",
+      "kind": "workflow",
+      "source": "docs/operations.md",
+      "status": "documented"
+    },
+    {
+      "from": "manual",
+      "to": "systemd",
+      "label": "runtime update",
+      "kind": "deployment",
+      "source": "docs/operations.md",
+      "status": "implemented"
+    },
+    {
+      "from": "noking",
+      "to": "agora",
+      "label": "implementation-first inspiration",
+      "kind": "conceptual",
+      "source": "README.md",
+      "status": "conceptual"
+    },
+    {
+      "from": "civis",
+      "to": "agora",
+      "label": "separate domain/scope",
+      "kind": "conceptual",
+      "source": "README.md",
+      "status": "conceptual"
+    },
+    {
+      "from": "mcp-server",
+      "to": "wire",
+      "label": "canonical protocol copy",
+      "kind": "schema",
+      "source": "docs/synapse-protocol.md",
+      "status": "implemented"
+    },
+    {
+      "from": "synapse",
+      "to": "wire",
+      "label": "format context; no auto sync",
+      "kind": "conceptual",
+      "source": "docs/synapse-protocol.md",
+      "status": "conceptual"
+    },
+    {
+      "from": "synapse2",
+      "to": "wire",
+      "label": "format context; no auto sync",
+      "kind": "conceptual",
+      "source": "docs/synapse-protocol.md",
+      "status": "conceptual"
+    },
+    {
+      "from": "wire",
+      "to": "agora",
+      "label": "implemented item/match subset",
+      "kind": "schema",
+      "source": "mcp-server/src/protocol.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "platform",
+      "to": "market",
+      "label": "первый приоритет",
+      "kind": "planned",
+      "source": "docs/vision.md",
+      "status": "planned"
+    },
+    {
+      "from": "google",
+      "to": "selfservice",
+      "label": "внешний вход",
+      "kind": "planned",
+      "source": "docs/identity-and-access.md",
+      "status": "planned"
+    },
+    {
+      "from": "invites",
+      "to": "selfservice",
+      "label": "политика доступа",
+      "kind": "planned",
+      "source": "docs/identity-and-access.md",
+      "status": "planned"
+    },
+    {
+      "from": "selfservice",
+      "to": "market",
+      "label": "постоянный owner",
+      "kind": "planned",
+      "source": "docs/identity-and-access.md",
+      "status": "planned"
+    },
+    {
+      "from": "payments",
+      "to": "usage",
+      "label": "кредиты / оплата",
+      "kind": "planned",
+      "source": "docs/economy.md",
+      "status": "planned"
+    },
+    {
+      "from": "usage",
+      "to": "market",
+      "label": "лимиты / учёт",
+      "kind": "planned",
+      "source": "docs/economy.md",
+      "status": "planned"
+    },
+    {
+      "from": "platform",
+      "to": "republic",
+      "label": "будущие институты",
+      "kind": "planned",
+      "source": "docs/vision.md",
+      "status": "planned"
+    },
+    {
+      "from": "republic",
+      "to": "constitution",
+      "label": "основание",
+      "kind": "planned",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "from": "constitution",
+      "to": "parliament",
+      "label": "законодательство",
+      "kind": "planned",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "from": "constitution",
+      "to": "electoral",
+      "label": "выборы",
+      "kind": "planned",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "from": "constitution",
+      "to": "courts",
+      "label": "разбирательства",
+      "kind": "planned",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "from": "parliament",
+      "to": "mandates",
+      "label": "границы",
+      "kind": "planned",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "from": "electoral",
+      "to": "mandates",
+      "label": "мандаты",
+      "kind": "planned",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "from": "courts",
+      "to": "appeals",
+      "label": "пересмотр",
+      "kind": "planned",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "from": "mandates",
+      "to": "audit",
+      "label": "подотчётность",
+      "kind": "planned",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "from": "appeals",
+      "to": "audit",
+      "label": "процедуры / данные",
+      "kind": "planned",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "from": "selfservice",
+      "to": "users",
+      "label": "безопасная привязка / миграция",
+      "kind": "planned",
+      "source": "docs/identity-and-access.md",
+      "status": "planned"
+    },
+    {
+      "from": "usage",
+      "to": "items",
+      "label": "ресурсы / публикация",
+      "kind": "planned",
+      "source": "docs/economy.md",
+      "status": "planned"
+    },
+    {
+      "from": "republic",
+      "to": "market",
+      "label": "правила в утверждённых границах",
+      "kind": "planned",
+      "source": "docs/governance.md",
+      "status": "planned"
+    },
+    {
+      "from": "agora",
+      "to": "file:.github/ISSUE_TEMPLATE/config.yml",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": ".github/ISSUE_TEMPLATE/config.yml",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:.github/ISSUE_TEMPLATE/task.yml",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": ".github/ISSUE_TEMPLATE/task.yml",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:.github/pull_request_template.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": ".github/pull_request_template.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:.github/workflows/ci.yml",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": ".github/workflows/ci.yml",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:.github/workflows/pages.yml",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": ".github/workflows/pages.yml",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:.gitignore",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": ".gitignore",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:AGENTS.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "AGENTS.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:CONTRIBUTING.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "CONTRIBUTING.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:README.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:ROADMAP.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "ROADMAP.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:db/migrations/001_init.sql",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "db/migrations/001_init.sql",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:db/migrations/002_auth_and_protocol_alignment.sql",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "db/migrations/002_auth_and_protocol_alignment.sql",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/Caddyfile.example",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/Caddyfile.example",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/Caddyfile.fresh.example",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/Caddyfile.fresh.example",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/Caddyfile.shared.example",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/Caddyfile.shared.example",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/README.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/README.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/agora-jina.env.example",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/agora-jina.env.example",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/agora-mcp.service",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/agora-mcp.service",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/agora.env.example",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/agora.env.example",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/check-caddy.sh",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/check-caddy.sh",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/configure-jina.py",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/configure-jina.py",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/enable-agora-caddy.py",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/enable-agora-caddy.py",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/install-node22.sh",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/install-node22.sh",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/provision-user.py",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/provision-user.py",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:deploy/two-user-smoke.mjs",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "deploy/two-user-smoke.mjs",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/architecture.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/architecture.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/deploy-shared-domain.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/deploy-shared-domain.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/economy.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/economy.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/github-pages.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/github-pages.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/governance.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/governance.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/identity-and-access.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/identity-and-access.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/install-fresh-vps.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/install-fresh-vps.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/live-test-report.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/live-test-report.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/mcp-tools.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/mcp-tools.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/operations.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/operations.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/parallel-testing.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/parallel-testing.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/project-maps.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/project-maps.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/synapse-protocol.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/synapse-protocol.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/testing-from-notion.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/testing-from-notion.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:docs/vision.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "docs/vision.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/e2e/.gitignore",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/e2e/.gitignore",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/e2e/README.md",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/e2e/README.md",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/e2e/client.py",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/e2e/client.py",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/e2e/fake_ollama.py",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/e2e/fake_ollama.py",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/e2e/run.sh",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/e2e/run.sh",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/package-lock.json",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/package-lock.json",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/package.json",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/package.json",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/src/auth.ts",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/src/auth.ts",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/src/db.ts",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/src/db.ts",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/src/embeddings.ts",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/src/embeddings.ts",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/src/errors.ts",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/src/errors.ts",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/src/index.ts",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/src/index.ts",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/src/protocol.ts",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/src/protocol.ts",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/src/validation.ts",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/src/validation.ts",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/test/embeddings.test.mjs",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/test/embeddings.test.mjs",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/test/validation.test.mjs",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/test/validation.test.mjs",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/tsconfig.json",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/tsconfig.json",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:site/build.mjs",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "site/build.mjs",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:site/check.mjs",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "site/check.mjs",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:site/content.json",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "site/content.json",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:site/generate-maps.py",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "site/generate-maps.py",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:site/package-lock.json",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "site/package-lock.json",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:site/package.json",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "site/package.json",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:site/style.css",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "site/style.css",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:site/tests/test_deploy.py",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "site/tests/test_deploy.py",
+      "status": "documented"
+    },
+    {
+      "from": "file:CONTRIBUTING.md",
+      "to": "file:mcp-server/e2e/README.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "CONTRIBUTING.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/vision.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/identity-and-access.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/economy.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/governance.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/live-test-report.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/mcp-tools.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/install-fresh-vps.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/deploy-shared-domain.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/parallel-testing.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/testing-from-notion.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/operations.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:mcp-server/e2e/README.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/project-maps.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/architecture.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:ROADMAP.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/synapse-protocol.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:docs/github-pages.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:CONTRIBUTING.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:README.md",
+      "to": "file:AGENTS.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:ROADMAP.md",
+      "to": "file:docs/identity-and-access.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "ROADMAP.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:ROADMAP.md",
+      "to": "file:docs/economy.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "ROADMAP.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:ROADMAP.md",
+      "to": "file:docs/governance.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "ROADMAP.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:ROADMAP.md",
+      "to": "file:docs/vision.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "ROADMAP.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:ROADMAP.md",
+      "to": "file:docs/architecture.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "ROADMAP.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:ROADMAP.md",
+      "to": "file:docs/project-maps.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "ROADMAP.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:deploy/README.md",
+      "to": "file:docs/identity-and-access.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "deploy/README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:deploy/README.md",
+      "to": "file:docs/install-fresh-vps.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "deploy/README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:deploy/README.md",
+      "to": "file:docs/deploy-shared-domain.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "deploy/README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:deploy/README.md",
+      "to": "file:docs/operations.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "deploy/README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:deploy/README.md",
+      "to": "file:docs/parallel-testing.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "deploy/README.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/architecture.md",
+      "to": "file:docs/vision.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/architecture.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/architecture.md",
+      "to": "file:ROADMAP.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/architecture.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/architecture.md",
+      "to": "file:docs/project-maps.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/architecture.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/architecture.md",
+      "to": "file:docs/identity-and-access.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/architecture.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/architecture.md",
+      "to": "file:docs/economy.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/architecture.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/architecture.md",
+      "to": "file:docs/governance.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/architecture.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/deploy-shared-domain.md",
+      "to": "file:docs/install-fresh-vps.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/deploy-shared-domain.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/deploy-shared-domain.md",
+      "to": "file:docs/operations.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/deploy-shared-domain.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/economy.md",
+      "to": "file:docs/identity-and-access.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/economy.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/economy.md",
+      "to": "file:docs/governance.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/economy.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/economy.md",
+      "to": "file:ROADMAP.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/economy.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/governance.md",
+      "to": "file:docs/vision.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/governance.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/governance.md",
+      "to": "file:docs/economy.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/governance.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/governance.md",
+      "to": "file:ROADMAP.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/governance.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/identity-and-access.md",
+      "to": "file:docs/testing-from-notion.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/identity-and-access.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/identity-and-access.md",
+      "to": "file:docs/parallel-testing.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/identity-and-access.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/install-fresh-vps.md",
+      "to": "file:docs/identity-and-access.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/install-fresh-vps.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/install-fresh-vps.md",
+      "to": "file:docs/deploy-shared-domain.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/install-fresh-vps.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/install-fresh-vps.md",
+      "to": "file:docs/testing-from-notion.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/install-fresh-vps.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/install-fresh-vps.md",
+      "to": "file:docs/parallel-testing.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/install-fresh-vps.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/install-fresh-vps.md",
+      "to": "file:docs/operations.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/install-fresh-vps.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/live-test-report.md",
+      "to": "file:docs/parallel-testing.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/live-test-report.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/live-test-report.md",
+      "to": "file:deploy/two-user-smoke.mjs",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/live-test-report.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/mcp-tools.md",
+      "to": "file:docs/identity-and-access.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/mcp-tools.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/mcp-tools.md",
+      "to": "file:docs/economy.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/mcp-tools.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/mcp-tools.md",
+      "to": "file:docs/vision.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/mcp-tools.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/parallel-testing.md",
+      "to": "file:docs/identity-and-access.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/parallel-testing.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/project-maps.md",
+      "to": "file:docs/vision.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/project-maps.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/project-maps.md",
+      "to": "file:docs/identity-and-access.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/project-maps.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/project-maps.md",
+      "to": "file:docs/economy.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/project-maps.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/project-maps.md",
+      "to": "file:docs/governance.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/project-maps.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/testing-from-notion.md",
+      "to": "file:docs/identity-and-access.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/testing-from-notion.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/testing-from-notion.md",
+      "to": "file:docs/live-test-report.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/testing-from-notion.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/testing-from-notion.md",
+      "to": "file:docs/parallel-testing.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/testing-from-notion.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/vision.md",
+      "to": "file:docs/governance.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/vision.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/vision.md",
+      "to": "file:docs/economy.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/vision.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/vision.md",
+      "to": "file:ROADMAP.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/vision.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/vision.md",
+      "to": "file:docs/architecture.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/vision.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:docs/vision.md",
+      "to": "file:docs/project-maps.md",
+      "label": "documents / links",
+      "kind": "documentation",
+      "source": "docs/vision.md",
+      "status": "documented"
+    },
+    {
+      "from": "file:mcp-server/src/auth.ts",
+      "to": "file:mcp-server/src/errors.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/auth.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/auth.ts",
+      "to": "file:mcp-server/src/db.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/auth.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/db.ts",
+      "to": "file:mcp-server/src/protocol.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/db.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/embeddings.ts",
+      "to": "file:mcp-server/src/errors.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/embeddings.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/index.ts",
+      "to": "file:mcp-server/src/validation.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/index.ts",
+      "to": "file:mcp-server/src/errors.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/index.ts",
+      "to": "file:mcp-server/src/embeddings.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/index.ts",
+      "to": "file:mcp-server/src/db.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/index.ts",
+      "to": "file:mcp-server/src/auth.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/index.ts",
+      "to": "file:mcp-server/src/protocol.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    }
+  ]
+}

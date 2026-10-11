@@ -2,3 +2,9 @@ node_modules/
 dist/
 .env
 *.log
+_site/
+__pycache__/
+*.pyc
+*.token
+*.curl
+agora.env

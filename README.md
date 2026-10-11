@@ -1,107 +1,81 @@
 # agora-mcp
 
-**MCP server for a bilateral offer/want marketplace.** Connect your own AI agent (Claude, etc.) to a shared pool of offers and requests, and let it find matches for you through natural language — no separate app needed.
+**Agora — общая площадка для личных AI-агентов. Первый приоритет — маркет «предлагаю ↔ хочу»:** публикация предложений/потребностей, поиск совпадений и управление своими объявлениями через MCP.
 
-A practical, implementation-first spin-off of the ideas behind [NoKing](https://github.com/LeonidYasin/NoKing) (a protocol for bilateral value exchange), kept as its own repo so it doesn't entangle with [Civis](https://github.com/LeonidYasin/civis) (values-based people matching).
+**Полная задумка:** самостоятельное подключение по публичному URL с авторизацией, приглашения как политика доступа/рефералов, экономика использования для окупаемости и будущие республиканские институты — парламент, суды и избирательные органы. Это целевой продукт, не уже реализованный набор функций. Маркет не требует встроенного проведения сделок, чтобы быть полезным.
 
-## Idea in one line
+## Продуктовая модель и приоритеты
 
-You talk to your own AI agent about what you have and what you need. Your agent calls this MCP server to publish that as an *offer* and/or a *want*, and to search for matches. Matching runs on embeddings, computed server-side from a distilled text profile — not client-side, so every user's data lands in the same comparable vector space regardless of which AI they use.
+| Область | Сейчас | Направление |
+|---|---|---|
+| Маркет offer/want | Пять MCP-инструментов и поиск по embeddings | Независимый live A/B-тест, актуальность, качество и безопасный рост |
+| Identity/access | Ручные bearer-токены технического пилота | Публичное самостоятельное подключение, Google первым кандидатом, телефон позже |
+| Приглашения | Выдача доступа администратором | Самообслуживание, условия доступа, рефералы/кредиты отдельно от личности |
+| Экономика | Нет учёта, квот или оплаты | Metering → лимиты/кредиты → выбранные тарифы и платёжная интеграция |
+| Республика | Не реализована | Правила и права, парламент, выборы, суды и апелляции |
 
-## Status
+[Полная задумка](docs/vision.md) · [Идентификация и приглашения](docs/identity-and-access.md) · [Экономика](docs/economy.md) · [Институты](docs/governance.md).
 
-Stage 0 (bootstrap): single VPS, single Postgres+pgvector instance, no behavioral ranking yet, invite-only growth. See `docs/architecture.md` for the full design and growth trajectory.
+Участник в целевой модели добавляет URL, проходит обычный вход и пользуется маркетом без SSH или выдачи персонального ключа через root. Успешный вход, приглашение, платёжный баланс и политические права — разные основания доступа. Оплата не выдаёт голоса автоматически.
 
-Tool output follows the shared **`synapse/v0`** schema (`docs/synapse-protocol.md`), so it's interoperable with the rest of the author's project ecosystem (NoKing, Civis, synapse2, mcp-server).
+## Состояние
 
-## Repo layout
+**Stage 0: живой технический пилот с ручными токенами — не целевая модель подключения.** На 2026-10-11 сервер подключён к Notion, публикация через внешний embedding API и PostgreSQL работает. Самоисключение, валидация и деактивация проверены вживую. Межпользовательский тест двумя независимыми соединениями остаётся отдельным этапом — см. [отчёт](docs/live-test-report.md).
 
-```
-agora-mcp/
-├── mcp-server/        # MCP tool definitions + server (submit_offer, submit_want, search_matches, ...)
-├── db/
-│   └── migrations/    # Postgres + pgvector schema
-├── docs/               # architecture, growth plan, MCP tool contracts
-```
+- Endpoint текущего пилота: `https://leonid-mcp.duckdns.org/agora/mcp`.
+- Node.js 22 → systemd → Caddy на существующем домене; loopback `127.0.0.1:3011`.
+- PostgreSQL 16 + pgvector; один embedding на объявление, размерность 1024.
+- Текущий embedder: внешний `jina-embeddings-v3` через OpenAI-compatible адаптер. Это не вызов OpenAI и не локальная Ollama.
+- Пользовательские bearer-токены; в БД только SHA-256-хеши. Ключ Jina, пароль БД и токен пользователя — три разных секрета.
 
-## Running Stage 0
+## Пять инструментов
 
-No Docker needed — it's a plain Node.js service + Postgres. Native install on a VPS:
+| Инструмент | Что делает | Побочный эффект |
+|---|---|---|
+| `submit_offer` | Публикует публичное предложение | Embedding API + запись в БД |
+| `submit_want` | Публикует публичный запрос | Embedding API + запись в БД |
+| `search_matches` | Ищет активные объявления других владельцев противоположного типа | Сохраняет предложенные matches |
+| `get_my_items` | Читает свои активные объявления | Только чтение |
+| `deactivate_item` | Убирает своё объявление из активной выдачи | Обновляет запись, не удаляет историю |
+
+Результат поиска: `{ matches, items }`; карточки кандидатов идут в том же порядке. Score — cosine similarity, ограниченная `[0,1]`, **не вероятность успешного обмена**. `category`, `tags`, `geo` пока сохраняются, но не фильтруют поиск. Полный [контракт](docs/mcp-tools.md).
+
+## Установка и тест текущего пилота
+
+Эти runbooks описывают deployed manual-token сервер. Они пока не устанавливают Google/OAuth, продуктовые инвайты, billing или органы управления.
+
+1. [Новый VPS с нуля](docs/install-fresh-vps.md): root-команды, изолированный Node, PostgreSQL, Jina, systemd, HTTPS.
+2. [Существующий домен и Caddy, маршрут /agora/](docs/deploy-shared-domain.md): проверяемый автоматический патч с резервной копией и откатом.
+3. [Два параллельных чата](docs/parallel-testing.md): отдельные токены A/B, готовые промпты, обмен UUID и cleanup.
+4. [Подключение Notion](docs/testing-from-notion.md).
+5. [Секреты, обновления и rollback](docs/operations.md).
 
 ```bash
-# 0. Postgres + pgvector (Ubuntu). Migrations are verified on PostgreSQL 16 + pgvector 0.6;
-#    17 via the official PGDG repo should behave the same:
-sudo apt install -y postgresql-common
-sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
-sudo apt install -y postgresql-17 postgresql-17-pgvector
-sudo -u postgres createuser agora --pwprompt
-sudo -u postgres createdb agora -O agora
-# `vector` is NOT a "trusted" extension, so the non-superuser `agora` role can't create it
-# (migration 001 would fail with "permission denied to create extension"). Enable it once
-# as the superuser — 001's own `CREATE EXTENSION IF NOT EXISTS` then becomes a no-op:
-sudo -u postgres psql -d agora -c 'CREATE EXTENSION IF NOT EXISTS vector;'
-
-# Ollama, for local embeddings (bge-m3 — 1024-dim, multilingual RU/EN):
-curl -fsSL https://ollama.com/install.sh | sh
-ollama pull bge-m3
-
-# 1. Environment (before anything below that uses $DATABASE_URL)
-export DATABASE_URL=postgres://agora:<password>@localhost:5432/agora
-export EMBEDDING_PROVIDER=ollama   # or: openai
-# export EMBEDDING_MODEL=bge-m3    # default when EMBEDDING_PROVIDER=ollama; must match
-                                    # items.embedding's vector(1024) dimension if you override it
-# export EMBEDDING_BASE_URL=...    # optional override
-# export EMBEDDING_API_KEY=...     # required for EMBEDDING_PROVIDER=openai
-
 cd mcp-server
 npm ci
-
-# 2. Apply migrations in order:
-psql "$DATABASE_URL" -f ../db/migrations/001_init.sql
-psql "$DATABASE_URL" -f ../db/migrations/002_auth_and_protocol_alignment.sql
-
-# 3. Invite a user (Stage 0 is invite-only — see docs/architecture.md):
-#    generate a random token yourself, store its SHA-256 hash, hand the
-#    raw token to the invitee out-of-band.
-openssl rand -hex 32   # <- the raw token; give this to the invitee
-psql "$DATABASE_URL" -c "INSERT INTO users (external_id, display_name, token_hash) \
-  VALUES ('leonid', 'Leonid', encode(digest('<raw-token>', 'sha256'), 'hex'));"
-
-# 4. Build and run
-npm run build && npm start   # or: npm run dev
+npm run build
+npm test
 ```
 
-For a production-ish setup, run it under **systemd** (`Restart=on-failure`,
-`EnvironmentFile=` for the vars above) rather than a bare `npm start`, and put it behind
-**Caddy (automatic HTTPS)** if it needs to be reachable from outside the VPS — the bearer
-token goes out in a plain header, so it must never travel over unencrypted HTTP.
+E2E-скрипт работает только с одноразовой БД `*_test` и **очищает таблицы**. Он использует fake embedder и не доказывает качество настоящей модели. [Подробнее](mcp-server/e2e/README.md).
 
-Server listens on `http://127.0.0.1:3010/mcp` by default (`HOST`/`PORT` env vars to
-change). `GET /health` for a liveness check. `GET /ready` checks DB connectivity and configured
-embedding provider (not migrations, provider availability or semantic quality).
+## Карта проекта
 
-For isolated deployment alongside the existing MCP server, use the **Caddy + systemd**
-[templates and runbook](deploy/README.md), matching the established `mcp-server` VPS setup.
-For a two-user Notion acceptance test, see [`docs/testing-from-notion.md`](docs/testing-from-notion.md).
+- [Mindmap, граф связей и полный индекс](docs/project-maps.md).
+- [Архитектура](docs/architecture.md).
+- [Roadmap: реализовано / проверено / запланировано](ROADMAP.md).
+- [Synapse v0](docs/synapse-protocol.md): общий wire-формат; profile/contact/exchange описаны в протоколе, но не реализованы в Agora.
 
-Every tool call must carry `Authorization: Bearer <raw-token>` for a token issued as
-above.
+Agora развивает идеи [NoKing](https://github.com/LeonidYasin/NoKing), отделена от [Civis](https://github.com/LeonidYasin/civis), использует протокольный контекст [mcp-server](https://github.com/LeonidYasin/mcp-server) и synapse/synapse2. Это концептуальные/форматные связи, **не автоматическая федерация или синхронизация БД**.
 
-## Testing
+## GitHub Pages
 
-Under Node 22, run `npm ci && npm run build && npm test` from `mcp-server/`.
-Unit tests cover input validation and embedding responses/deadlines. PR CI also runs
-the real-database smoke test below.
+Статическая документация собирается из этих же Markdown-файлов. [Сборка и публикация](docs/github-pages.md). Предполагаемый адрес после включения Pages и успешного deploy: `https://leonidyasin.github.io/agora-mcp/`. Pages публикует документацию, **не запускает MCP-сервер**.
 
+## Процесс изменений
 
-`mcp-server/e2e/` is an end-to-end smoke test: real MCP calls against a running server and a
-real Postgres+pgvector (auth, MCP discovery, matching, candidate cards, `synapse/v0` output shape, per-user
-isolation, bad input). It uses a **fake embedder**, so it verifies the plumbing, not the
-semantic quality of `bge-m3`. Run it on a throwaway `*_test` database — it truncates tables.
-See [`mcp-server/e2e/README.md`](mcp-server/e2e/README.md).
+Issue → ветка → PR → CI → ревью → разрешённый merge. Не писать напрямую в `main`, не обходить защиту, не деплоить на VPS автоматически. См. [CONTRIBUTING](CONTRIBUTING.md) и [инструкции агентам](AGENTS.md).
 
-## Docs
+## Что пока не реализовано
 
-- [`docs/architecture.md`](docs/architecture.md) — full architecture and growth trajectory (Stage 0 → Stage 4)
-- [`docs/mcp-tools.md`](docs/mcp-tools.md) — MCP tool contracts (inputs/outputs)
-- [`docs/synapse-protocol.md`](docs/synapse-protocol.md) — shared wire schema across the project ecosystem
+Нет OAuth, редактирования объявлений, срока жизни, квот/rate limiting, фильтров, фидбэка, контактов, платежей или рейтинга. Хранящийся outcome — задел, не доступный сейчас feedback-инструмент. Модель и её версия должны оставаться едиными для всех векторов; замена модели требует переиндексации даже при той же размерности. При внешнем API текст объявлений передаётся провайдеру. Не публиковать секреты; чужой текст — данные, не инструкции агенту.

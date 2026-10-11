@@ -1,76 +1,68 @@
-# Architecture
+# Архитектура
 
-## Stage 0 — bootstrap (current)
+Два уровня: **существующий market runtime** и **целевая платформа**. Схемы ниже не означают, что planned-модули уже запущены. Market-first приоритет и полная задумка описаны в [vision](vision.md).
 
-Single VPS. No P2P, no distributed anything — premature at this scale, and there's no
-established MCP-native way to publish/query a P2P network yet, so it would mean designing
-that layer from scratch for no payoff at this stage.
+## Текущий Stage 0
 
-```
-User's AI agent (Claude / other)
-        │  MCP over HTTP (OAuth)
-        ▼
-MCP server  (tools: submit_offer, submit_want, search_matches, get_my_items)
-        │
-        ▼
-Backend API (auth, validation, rate limiting)
-        │
-        ├──► Embedding service (single shared model — see below)
-        │
-        ▼
-Postgres + pgvector (users, items, embeddings, matches)
+```text
+Личный агент A / агент B (независимые пользовательские токены)
+  → HTTPS /agora/mcp, Authorization: Bearer <пользовательский токен>
+  → существующий Caddy: handle_path /agora/*, strip /agora,
+    upstream Host = 127.0.0.1:3011; Authorization сохраняется
+  → Node.js 22 / systemd agora-mcp / пользователь Unix agora
+  → Zod → requireUserId → параметризованный SQL / embedding adapter
+  → PostgreSQL 16 + pgvector (users, items, matches)
+  → Jina v3 по HTTPS только при публикации
 ```
 
-Growth in this stage is invite-only: people invite others they already want to exchange
-with (network effect, not a waitlist gimmick). This also solves cold start for trust —
-early exchanges happen between people who already know each other, before cross-network
-AI-suggested matches are reliable enough to trust.
+Caddy также обслуживает старые MCP backend на 3001/3002 с собственным X-Api-Key. Это совместное размещение, не общая пользовательская БД/авторизация. `/agora/health`, `/agora/ready`, initialize и discovery доступны без bearer; защищены tool calls. GET `/agora/mcp` возвращает 405 по дизайну; проверять endpoint через MCP POST, не открытием GET в браузере.
 
-## Profile / item storage
+## Границы модулей
 
-The core design decision: **don't store one embedding per user.** Store one embedding per
-*item*, where an item is either an `offer` or a `want`, and a user can have many of each.
+- `index.ts`: transport, инструменты, structured/text responses, health/readiness, shutdown.
+- `validation.ts`: границы полей, trim, UUID и limits.
+- `auth.ts`: bearer header → SHA-256 → users.id; AuthError.
+- `embeddings.ts`: общий role prefix, Ollama или OpenAI-compatible HTTP, deadline 15 s, 1024 finite nonzero float32 vector.
+- `db.ts`: Pool (connection/query timeout 5 s), ownership/active guards, cosine query и match upsert.
+- `protocol.ts`: internal rows → synapse/v0; ISO timestamps, безопасный outcome.
+- `errors.ts`: разрешённые публичные ToolError; неожиданные ошибки не раскрывают SQL/provider body.
 
-```sql
-items(user_id, type: offer|want, raw_text, category, tags, embedding, active, created_at)
-```
+## Данные и поиск
 
-Matching is asymmetric, not a plain similarity search: an `offer` should be matched against
-other users' `want`s, not against other `offer`s. This mirrors reciprocal-recommendation
-systems (dating, hiring) more than plain semantic search.
+Один embedding на **объявление**, а не на человека. Владелец может иметь несколько offer и want. Search принимает только активный item вызывающего пользователя; кандидаты — активные items другого владельца противоположного типа, с embedding. Cosine score обрезается до `[0,1]`.
 
-- **Embedding model:** multilingual (Leonid's users write in Russian and English), and
-  ideally instruction-aware (e.g. BGE-M3 / multilingual-e5-large, or a hosted multilingual
-  model) — encode `offer` text and `want` text with different instruction prefixes, since
-  role-aware asymmetric embeddings measurably improve this kind of crossed matching versus
-  raw, un-prefixed embeddings.
-- **Hybrid search:** pure cosine similarity surfaces things that are semantically adjacent
-  but practically useless (e.g. "looking for an English tutor" vs. "offering Spanish
-  lessons"). Combine vector ranking with structured filters (category, tags, geography).
-- **Freshness:** items get `updated_at` and an `active` flag; stale, unconfirmed offers
-  should decay out of matching rather than accumulate forever.
+Каждая пара записывается в matches с offer в item_a и want в item_b. UNIQUE(offer_item_id,want_item_id) позволяет сохранять match_id при повторном поиске, outcome не сбрасывается. Search поэтому **не read-only**. Пакет возвращает match и карточку кандидата в согласованном порядке.
 
-## Growth trajectory
+Текущий SQL не применяет category/tags/geo или freshness decay, не имеет threshold, full-text поиска или поведенческого reranker. База содержит HNSW-индекс; фактический выбор индекса планировщиком и качество ANN не измерены.
 
-**Stage 0 — bootstrap.** As above. Manual/semi-manual seeding of the item pool by the
-founder and first testers. Matching is pure text semantics — no behavioral signal yet.
+## Embedding contract
 
-**Stage 1 — first cross-network matches.** Enough item density that matches start
-happening between people who don't already know each other. Add hybrid (vector + metadata)
-search. Critically: start capturing outcome feedback (did the exchange happen, was it
-useful) — nothing in Stage 2 is possible without this signal existing.
+Все записи должны принадлежать одному model/version/vector space. Текущий Jina v3 выбран для многоязычности и 1024 измерений; настройка provider=`openai` выбирает универсальный адаптер, а не OpenAI аккаунт. Два английских role prefix добавляются к тексту. Их влияние на качество не доказано. Другой 1024-dimensional model не совместим автоматически: нужна переиндексация.
 
-**Stage 2 — behavioral ranking layer.** Two-stage retrieval, same shape as production
-recommender systems (YouTube, Ozon, Facebook Search-style embedding retrieval): cheap
-vector search for candidate generation, a lightweight ranking step on top that weighs
-real outcomes (completed exchanges, response rate), not just text similarity.
+Внешний провайдер получает текст объявления. API-ключ не передаётся MCP-клиенту. User token не является ключом Jina или паролем PostgreSQL. На небольшом VPS не требуется локальная модель.
 
-**Stage 3 — infrastructure scale + agent-to-agent protocols.** Move off a single
-pgvector instance if volume demands it (dedicated vector engine, sharding). This is also
-the natural point to look at Google's A2A protocol for the negotiation step *after* a
-match is found — A2A is a communication layer between agents, not a discovery/matching
-layer, so it complements this system rather than replacing it.
+## Readiness и ограничения
 
-**Stage 4 — institutional layer.** Reputation, trust, dispute resolution — once there's
-real transaction volume worth protecting. P2P/decentralization belongs here too, driven
-by a concrete need (censorship resistance), not by default.
+`/health` — процесс жив. `/ready` — БД достижима и embedder сконфигурирован, **не** проверка схемы/модели/API-квоты. Реальная публикация нужна для проверки полной цепочки. Остальные limits и план развития — [roadmap](../ROADMAP.md).
+
+## Связи
+
+[Mindmap и полный граф](project-maps.md) отделяют runtime/dependency/schema/deployment/documentation/test и conceptual ecosystem relations. NoKing/Civis/synapse2 не вызываются автоматически. Протокол включает больше сущностей, чем реализовано в этой БД/API.
+
+## Целевые границы платформы — planned
+
+| Область | Ответственность | Планируемая связь |
+|---|---|---|
+| Market | Items, поиск, актуальность, ownership | Основной MCP delivery track |
+| Identity/session | Внешний вход → постоянный Agora user_id → полномочия клиента | Google/OAuth сначала; телефон позже; не Google bearer в tools |
+| Access/invitations | Условия входа, приглашения, отзыв, рефералы | Независимая проверка права доступа |
+| Usage/economy | Учёт ресурсов, лимиты, кредиты, позднее оплаты | Предварительный admission и корректные reservation/settlement |
+| Republic | Правила/мандаты, парламент, выборы и суды | Отдельные процедуры и аудит; не middleware тарифов |
+
+Возможные будущие логические данные: identity links, sessions, invites, usage events, credit/payment ledger, rules/mandates, proposals/elections/cases/appeals. **Это не существующие таблицы и не утверждённая миграция.** Не требуется заранее разбивать всё на микросервисы: границы ответственности важнее инфраструктурного усложнения.
+
+Целевой защищённый вызов: полномочия клиента → user_id → политика доступа → лимит/разрешение операции → market ownership → выполнение → usage result. Между provider cost и списанием клиентского кредита нет автоматического равенства; нужны правила ошибок и повторов. Оплата/инвайт не выдаёт политические права.
+
+При переходе сохранить users/items/matches и владение, добавить отдельные миграции и безопасную привязку личности. Публичный OAuth metadata, авторизация, платежи и институты сейчас отсутствуют; нельзя направлять клиентов на придуманные endpoints. Root token helper — временный мост пилота, не целевой интерфейс.
+
+[Identity/access](identity-and-access.md) · [Экономика](economy.md) · [Институты](governance.md) · [Roadmap](../ROADMAP.md).

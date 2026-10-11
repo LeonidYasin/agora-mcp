@@ -78,3 +78,24 @@ jobs:
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f ../db/migrations/002_auth_and_protocol_alignment.sql
       - name: Run MCP smoke tests with fake embedder
         run: bash e2e/run.sh
+
+  documentation:
+    name: Documentation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+        working-directory: site
+      - run: npm run build && npm test
+        working-directory: site
+      - name: Check deployment helpers
+        run: |
+          python3 -m py_compile deploy/*.py
+          bash -n deploy/install-node22.sh
+          node --check deploy/two-user-smoke.mjs

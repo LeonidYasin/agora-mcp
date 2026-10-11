@@ -1,0 +1,18 @@
+digraph G {
+graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", splines=polyline];
+node [shape=box, style="rounded,filled", fontname="Arial", fontsize=16, margin="0.2,0.15", color="#E6E5E3", fontcolor="#2C2C2B"];
+edge [fontname="Arial", fontsize=13, color="#7D7A75", fontcolor="#55534F", arrowsize=0.7];
+"noking" [label="NoKing · идеи обмена", fillcolor="#FBEBDE"];
+"civis" [label="Civis · отдельный проект", fillcolor="#FBEBDE"];
+"mcp-server" [label="mcp-server · canonical protocol", fillcolor="#E5F2FC"];
+"synapse" [label="synapse · общий формат", fillcolor="#FBEBDE"];
+"synapse2" [label="synapse2 · общий формат", fillcolor="#FBEBDE"];
+"agora" [label="Agora MCP", fillcolor="#E5F2FC"];
+"wire" [label="synapse/v0 item / match", fillcolor="#E5F2FC"];
+"noking" -> "agora" [label="implementation-first inspiration", style=dashed];
+"civis" -> "agora" [label="separate domain/scope", style=dashed];
+"mcp-server" -> "wire" [label="canonical protocol copy", style=solid];
+"synapse" -> "wire" [label="format context; no auto sync", style=dashed];
+"synapse2" -> "wire" [label="format context; no auto sync", style=dashed];
+"wire" -> "agora" [label="implemented item/match subset", style=solid];
+}

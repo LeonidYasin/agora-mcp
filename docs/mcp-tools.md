@@ -1,10 +1,8 @@
 # MCP tool contracts (Stage 0)
 
-All tools are called by the user's own AI agent on their behalf. **Stage 0 auth is a
-simple invite-only bearer token** (see docs/architecture.md's "invite-only" growth model),
-not a full OAuth flow yet: `Authorization: Bearer <token>`, where the token was issued
-out-of-band and its SHA-256 hash stored in `users.token_hash`. A proper OAuth connector
-flow is future work once growth moves past manual invites.
+All tools are called by the user's own AI agent on their behalf. **These contracts describe the current manual-token technical pilot**, not the target public onboarding. Stage 0 uses an out-of-band bearer token, `Authorization: Bearer <token>`, whose SHA-256 hash is stored in `users.token_hash`.
+
+The target is self-service authorization/account creation, with invitations as a separate access/referral policy and usage billing as another layer. Google/OAuth, product invitations, quotas, payments and republican tools are not implemented by these five contracts. See [identity and access](identity-and-access.md), [economy](economy.md) and [full vision](vision.md).
 
 Tool output is shaped to the shared **`synapse/v0`** schema
 (`docs/synapse-protocol.md`) — every `item` and `match` object includes a `schema` field
@@ -19,7 +17,7 @@ Publish something the user has to offer.
 | param | type | notes |
 |---|---|---|
 | `text` | string | free-form description, in the user's own words |
-| `category` | string? | optional coarse category for filtering |
+| `category` | string? | optional coarse category; stored metadata, not a current search filter |
 | `tags` | string[]? | optional |
 | `geo` | string? | optional free-form location, for hybrid filtering (`synapse/v0` `item.geo`) |
 

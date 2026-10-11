@@ -1,0 +1,17 @@
+digraph G {
+graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", splines=polyline];
+node [shape=box, style="rounded,filled", fontname="Arial", fontsize=16, margin="0.2,0.15", color="#E6E5E3", fontcolor="#2C2C2B"];
+edge [fontname="Arial", fontsize=13, color="#7D7A75", fontcolor="#55534F", arrowsize=0.7];
+"users" [label="users · token_hash", fillcolor="#E8F1EC"];
+"items" [label="items · offer / want", fillcolor="#E8F1EC"];
+"matches" [label="matches · UNIQUE pair", fillcolor="#E8F1EC"];
+"auth" [label="Bearer → SHA-256", fillcolor="#FCE9E7"];
+"search" [label="Cosine search + upsert", fillcolor="#E5F2FC"];
+"wire" [label="synapse/v0 item / match", fillcolor="#E5F2FC"];
+"auth" -> "users" [label="hash lookup → owner", style=solid];
+"users" -> "items" [label="user_id FK; owns", style=solid];
+"items" -> "matches" [label="offer/want FK; pair", style=solid];
+"items" -> "search" [label="active; other owner; opposite type", style=solid];
+"search" -> "matches" [label="UPSERT score; keep outcome", style=solid];
+"search" -> "wire" [label="candidate cards + match objects", style=solid];
+}
