@@ -8,10 +8,12 @@ For the first test, keep the existing VPS and install Agora as an independent se
 - Its own database and database role, separate from the existing MCP service.
 - Its own systemd unit and environment file, outside the repo, readable only by the service/admin.
 - An unused loopback port (for example 3011; check availability first). Set `HOST=127.0.0.1` and `PORT=3011`.
-- A dedicated HTTPS hostname proxied to that port. Do not replace the existing `leonid-mcp` nginx route or service.
+- A dedicated HTTPS hostname handled by the existing Caddy, proxied to that port.
+  Do not replace the existing `leonid-mcp` site/service or install nginx alongside it.
+  See [the Caddy + systemd runbook](../deploy/README.md) and its upstream Host-header setting.
 - PostgreSQL + pgvector, migrations 001 and 002, and one fixed embedding model. Default `bge-m3` has 1024 dimensions. All stored vectors must use the same model; changing models requires re-embedding all items, even if dimensions match.
 
-See README for native installation. Confirm available VPS memory before loading bge-m3; this change does not benchmark its resource usage. Validate nginx configuration before reload, preserve the existing service and prepare rollback. Deployment requires explicit maintainer authorization.
+See README for native installation. Confirm available VPS memory before loading bge-m3; this change does not benchmark its resource usage. Validate the complete Caddy configuration before reload, preserve the existing service and prepare rollback. Deployment requires explicit maintainer authorization.
 
 ## Before connecting
 
