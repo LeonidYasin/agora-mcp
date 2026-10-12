@@ -3,24 +3,41 @@ import { ToolError } from "./errors.js";
 import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import type { ServerRequest, ServerNotification } from "@modelcontextprotocol/sdk/types.js";
 import { getUserIdByTokenHash } from "./db.js";
+import { readOAuthConfig } from "./oauth-core.js";
+import { getUserIdByAccessToken } from "./oauth-db.js";
 
 export type ToolExtra = RequestHandlerExtra<ServerRequest, ServerNotification>;
 
 /**
- * Stage 0 auth (see docs/architecture.md): invite-only, no OAuth dance yet.
- * The founder creates a `users` row and hands the invitee an opaque bearer
- * token out-of-band. Only the token's SHA-256 hash is ever stored/compared.
+ * Accepts either an OAuth access token issued by this server or a legacy
+ * pilot bearer token. Only SHA-256 hashes are stored. See docs/identity-and-access.md.
  */
 export function hashToken(token: string): string {
   return createHash("sha256").update(token, "utf8").digest("hex");
 }
 
-function extractBearerToken(extra: ToolExtra): string | null {
-  const header = extra.requestInfo?.headers?.["authorization"];
+export function bearerFromHeader(header: string | string[] | undefined): string | null {
   const value = Array.isArray(header) ? header[0] : header;
   if (!value) return null;
-  const match = /^Bearer\s+(.+)$/i.exec(value.trim());
+  const match = /^Bearer\s+(\S+)$/i.exec(value.trim());
   return match ? match[1] : null;
+}
+
+function extractBearerToken(extra: ToolExtra): string | null {
+  return bearerFromHeader(extra.requestInfo?.headers?.["authorization"]);
+}
+
+/**
+ * OAuth access tokens are checked before legacy pilot tokens. An expired or
+ * revoked OAuth token does not fall through to a different account.
+ */
+export async function resolveUserId(token: string, resource: string | null): Promise<string | null> {
+  const hash = hashToken(token);
+  if (resource) {
+    const oauthUser = await getUserIdByAccessToken(hash, resource);
+    if (oauthUser) return oauthUser;
+  }
+  return getUserIdByTokenHash(hash);
 }
 
 export class AuthError extends ToolError {
@@ -40,7 +57,7 @@ export async function requireUserId(extra: ToolExtra): Promise<string> {
   if (!token) {
     throw new AuthError("Missing Authorization: Bearer <token> header.");
   }
-  const userId = await getUserIdByTokenHash(hashToken(token));
+  const userId = await resolveUserId(token, readOAuthConfig(process.env)?.resource ?? null);
   if (!userId) {
     throw new AuthError("Invalid or unrecognized token.");
   }

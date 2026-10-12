@@ -44,7 +44,7 @@ handle_path /agora/* {
 }
 ```
 
-Не устанавливать отдельный домен/Caddy, не заменять old X-Api-Key, не проксировать новый endpoint через старую shared-key авторизацию. Public health/discovery доступны; bearer checks выполняются внутри tools. Порты 3011/5432/11434 не открывать в Internet.
+Не устанавливать отдельный домен/Caddy, не заменять old X-Api-Key, не проксировать новый endpoint через старую shared-key авторизацию. Public health и readiness доступны. В этой версии репозитория POST /mcp без действительного токена возвращает HTTP 401; объявленный metadata URL находится под /agora/ и проходит через существующий handle_path. Проверки origin-level /.well-known/ требуют отдельных маршрутов из примера Caddy и на уже настроенном VPS автоматически не добавляются. Порты 3011/5432/11434 не открывать в Internet.
 
 ## Повторный запуск и rollback
 

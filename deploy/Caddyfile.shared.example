@@ -1,5 +1,24 @@
 # Illustrative shared site. Preserve the real existing auth/routes.
 agora.example.invalid {
+    # Origin-level discovery for clients that do not fall through to /agora/.
+    handle /.well-known/oauth-protected-resource/agora/mcp {
+        rewrite * /.well-known/oauth-protected-resource
+        reverse_proxy 127.0.0.1:3011 {
+            header_up Host {upstream_hostport}
+        }
+    }
+    handle /.well-known/oauth-authorization-server/agora {
+        rewrite * /.well-known/oauth-authorization-server
+        reverse_proxy 127.0.0.1:3011 {
+            header_up Host {upstream_hostport}
+        }
+    }
+    handle /.well-known/openid-configuration/agora {
+        rewrite * /.well-known/openid-configuration
+        reverse_proxy 127.0.0.1:3011 {
+            header_up Host {upstream_hostport}
+        }
+    }
     handle_path /agora/* {
         reverse_proxy 127.0.0.1:3011 {
             header_up Host {upstream_hostport}

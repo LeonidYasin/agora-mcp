@@ -20,11 +20,11 @@ psql "$DATABASE_URL" -q -v ON_ERROR_STOP=1 -c "TRUNCATE users CASCADE;" \
   -c "INSERT INTO users (external_id, display_name, token_hash) VALUES
         ('alice','Alice', encode(digest('alice-secret-token','sha256'),'hex')),
         ('bob','Bob',     encode(digest('bob-secret-token','sha256'),'hex'));" \
-  || { echo "could not seed users (are migrations 001+002 applied, and pgcrypto enabled?)"; exit 2; }
+  || { echo "could not seed users (are migrations 001+002+003 applied, and pgcrypto enabled?)"; exit 2; }
 
 python3 "$HERE/fake_ollama.py" "$FAKE_PORT" & OLL=$!
 ( cd "$SERVER_DIR" && EMBEDDING_PROVIDER=ollama EMBEDDING_BASE_URL="http://127.0.0.1:$FAKE_PORT" \
-  EMBEDDING_MODEL=bge-m3 node dist/index.js > "$HERE/server.log" 2>&1 ) & SRV=$!
+  EMBEDDING_MODEL=bge-m3 AGORA_PUBLIC_BASE_URL="${AGORA_PUBLIC_BASE_URL:-http://127.0.0.1:3010}" node dist/index.js > "$HERE/server.log" 2>&1 ) & SRV=$!
 trap 'kill $SRV $OLL 2>/dev/null' EXIT
 for _ in $(seq 1 20); do curl -s http://127.0.0.1:3010/health >/dev/null && break; sleep 0.3; done
 

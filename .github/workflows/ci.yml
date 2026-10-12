@@ -76,6 +76,7 @@ jobs:
         run: |
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f ../db/migrations/001_init.sql
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f ../db/migrations/002_auth_and_protocol_alignment.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f ../db/migrations/003_oauth.sql
       - name: Run MCP smoke tests with fake embedder
         run: bash e2e/run.sh
 
