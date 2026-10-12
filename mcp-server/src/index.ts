@@ -5,15 +5,19 @@ import { submitSchema, itemIdSchema, searchSchema } from "./validation.js";
 import { ToolError } from "./errors.js";
 import { createEmbeddingService, UnimplementedEmbeddingService } from "./embeddings.js";
 import { pool, insertItem, getUserItems, deactivateItem, searchMatches } from "./db.js";
-import { requireUserId, type ToolExtra } from "./auth.js";
+import { bearerFromHeader, requireUserId, resolveUserId, type ToolExtra } from "./auth.js";
+import { createGoogleIdentityProvider } from "./google-oidc.js";
+import { readOAuthConfig, wwwAuthenticate } from "./oauth-core.js";
+import { PgOAuthStore } from "./oauth-db.js";
+import { mountOAuth } from "./oauth-http.js";
 import { toSynapseItem, toSynapseMatch } from "./protocol.js";
 
 /**
  * agora-mcp — Stage 0 server (see docs/architecture.md).
  *
- * Auth: Stage 0 is invite-only. Each call must carry
- * `Authorization: Bearer <token>` for a token the founder issued and
- * stored (hashed) in `users.token_hash` — see src/auth.ts.
+ * Auth: a client adds this server URL and completes MCP OAuth, or sends a
+ * legacy pilot bearer token. Missing and invalid tokens return HTTP 401 so
+ * clients can discover the authorization server. See src/oauth-http.ts.
  *
  * Tool output is shaped to the shared `synapse/v0` schema
  * (docs/synapse-protocol.md) so results are interoperable with the rest
@@ -161,8 +165,43 @@ const PORT = Number(process.env.PORT ?? 3010);
 // examples use for stateless StreamableHTTP servers and avoids one
 // client's session state leaking into another's.
 const app = createMcpExpressApp({ host: HOST });
+app.set("trust proxy", "loopback");
+const oauthConfig = readOAuthConfig(process.env);
+if (oauthConfig) {
+  mountOAuth(app, {
+    config: oauthConfig,
+    store: new PgOAuthStore(),
+    identity: oauthConfig.google ? createGoogleIdentityProvider(oauthConfig.google) : null,
+  });
+} else {
+  console.warn("AGORA_PUBLIC_BASE_URL is not set — MCP OAuth discovery is disabled. Legacy bearer tokens still work.");
+}
 
 app.post("/mcp", async (req, res) => {
+  const token = bearerFromHeader(req.headers.authorization);
+  if (!token) {
+    res.set("WWW-Authenticate", wwwAuthenticate(oauthConfig)).status(401).json({
+      jsonrpc: "2.0",
+      error: { code: -32001, message: "Unauthorized" },
+      id: null,
+    });
+    return;
+  }
+  try {
+    const userId = await resolveUserId(token, oauthConfig?.resource ?? null);
+    if (!userId) {
+      res.set("WWW-Authenticate", wwwAuthenticate(oauthConfig, "invalid_token")).status(401).json({
+        jsonrpc: "2.0",
+        error: { code: -32001, message: "Unauthorized" },
+        id: null,
+      });
+      return;
+    }
+  } catch (error) {
+    console.error("Auth lookup failed:", error instanceof Error ? error.name : "unknown");
+    res.status(500).json({ jsonrpc: "2.0", error: { code: -32603, message: "Internal server error" }, id: null });
+    return;
+  }
   const server = getServer();
   try {
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });

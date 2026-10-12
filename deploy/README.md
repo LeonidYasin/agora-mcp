@@ -26,3 +26,8 @@
 | Caddyfile.example | Альтернативный отдельный hostname, не нужен текущему пилоту |
 
 Документация/CI не выполняют VPS administration. Scripts требуют осознанного root запуска, актуального reviewed checkout и проверки условий. Не публиковать raw EnvironmentFile, bearer tokens, DB password или Jina key.
+
+## MCP OAuth
+
+Для браузерного входа задайте `AGORA_PUBLIC_BASE_URL` без завершающего слэша и пару `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`. Redirect URI в Google Cloud: `{AGORA_PUBLIC_BASE_URL}/oauth/google/callback`. Без этих значений рынок с ручными токенами продолжает работать, а `/authorize` сообщает, что вход не настроен. Приглашения этим входом не ограничиваются.
+

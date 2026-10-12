@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 import sys
+import urllib.error
 import urllib.request
 
 URL = os.environ.get("AGORA_URL", "http://127.0.0.1:3010/mcp")
@@ -12,8 +13,11 @@ results = []
 
 
 def check(label, cond, detail=""):
-    results.append(cond)
-    print(("PASS " if cond else "FAIL ") + label + ("" if cond else f"\n     -> {detail}"))
+    # Store a real boolean. An `and` chain can return a truthy list, which
+    # would pass the print check and then crash sum(results).
+    ok = bool(cond)
+    results.append(ok)
+    print(("PASS " if ok else "FAIL ") + label + ("" if ok else f"\n     -> {detail}"))
 
 
 _id = 0
@@ -28,7 +32,10 @@ def call(tool, args, token=None):
     body = json.dumps({"jsonrpc": "2.0", "id": _id, "method": "tools/call",
                        "params": {"name": tool, "arguments": args}}).encode()
     req = urllib.request.Request(URL, data=body, headers=headers)
-    raw = urllib.request.urlopen(req).read().decode()
+    try:
+        raw = urllib.request.urlopen(req).read().decode()
+    except urllib.error.HTTPError as exc:
+        return {"error": f"HTTP {exc.code}", "www": exc.headers.get("WWW-Authenticate", "")}, True
     data = next((l[5:] for l in raw.splitlines() if l.startswith("data:")), raw)
     rpc = json.loads(data)
     if "error" in rpc:
@@ -87,9 +94,12 @@ check("readiness reports database reachable and embedder configured", ready.get(
 
 # --- auth ---
 p, err = call("get_my_items", {})
-check("no auth header -> error", err and "Missing Authorization" in p["error"], p)
+check("no auth header -> 401 discovery", err and p.get("error") == "HTTP 401" and "resource_metadata" in p.get("www", ""), p)
 p, err = call("get_my_items", {}, token="nope")
-check("bad token -> error", err and "Invalid or unrecognized" in p["error"], p)
+check("bad token -> 401", err and "invalid_token" in p.get("www", ""), p)
+meta = json.loads(urllib.request.urlopen(URL.rsplit("/", 1)[0] + "/.well-known/oauth-protected-resource").read())
+check("protected resource metadata identifies this MCP server",
+      meta.get("resource", "").endswith("/mcp") and bool(meta.get("authorization_servers")), meta)
 
 # --- submit ---
 a_off, e1 = call("submit_offer", {"text": "Консультации по Android разработке, Kotlin и NDK", "category": "it", "tags": ["android", "kotlin"], "geo": "Kerkrade"}, TOK_A)

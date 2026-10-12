@@ -15,13 +15,14 @@
   → Jina v3 по HTTPS только при публикации
 ```
 
-Caddy также обслуживает старые MCP backend на 3001/3002 с собственным X-Api-Key. Это совместное размещение, не общая пользовательская БД/авторизация. `/agora/health`, `/agora/ready`, initialize и discovery доступны без bearer; защищены tool calls. GET `/agora/mcp` возвращает 405 по дизайну; проверять endpoint через MCP POST, не открытием GET в браузере.
+Caddy также обслуживает старые MCP backend на 3001/3002 с собственным X-Api-Key. Это совместное размещение, не общая пользовательская БД/авторизация. `/agora/health` и `/agora/ready` доступны без bearer. `POST /agora/mcp` без действительного токена возвращает HTTP 401 с `WWW-Authenticate`, чтобы клиент начал стандартный вход; старые пилотные токены остаются действительными. GET `/agora/mcp` возвращает 405 по дизайну; проверять endpoint через MCP POST, не открытием GET в браузере.
 
 ## Границы модулей
 
 - `index.ts`: transport, инструменты, structured/text responses, health/readiness, shutdown.
 - `validation.ts`: границы полей, trim, UUID и limits.
-- `auth.ts`: bearer header → SHA-256 → users.id; AuthError.
+- `auth.ts`: bearer header → SHA-256 → OAuth access token или legacy `users.token_hash`.
+- `oauth-http.ts`: discovery, регистрация клиента, Google login, consent, token, refresh и revoke.
 - `embeddings.ts`: общий role prefix, Ollama или OpenAI-compatible HTTP, deadline 15 s, 1024 finite nonzero float32 vector.
 - `db.ts`: Pool (connection/query timeout 5 s), ownership/active guards, cosine query и match upsert.
 - `protocol.ts`: internal rows → synapse/v0; ISO timestamps, безопасный outcome.
@@ -63,6 +64,6 @@ Caddy также обслуживает старые MCP backend на 3001/3002 
 
 Целевой защищённый вызов: полномочия клиента → user_id → политика доступа → лимит/разрешение операции → market ownership → выполнение → usage result. Между provider cost и списанием клиентского кредита нет автоматического равенства; нужны правила ошибок и повторов. Оплата/инвайт не выдаёт политические права.
 
-При переходе сохранить users/items/matches и владение, добавить отдельные миграции и безопасную привязку личности. Публичный OAuth metadata, авторизация, платежи и институты сейчас отсутствуют; нельзя направлять клиентов на придуманные endpoints. Root token helper — временный мост пилота, не целевой интерфейс.
+При переходе сохранить users/items/matches и владение, добавить отдельные миграции и безопасную привязку личности. Платежи и институты отсутствуют. OAuth endpoints есть в коде, но на живом сервере их нет, пока эта версия не развёрнута и Google client не настроен. Root token helper остаётся мостом для клиентов, которые умеют только вставить заголовок.
 
 [Identity/access](identity-and-access.md) · [Экономика](economy.md) · [Институты](governance.md) · [Roadmap](../ROADMAP.md).

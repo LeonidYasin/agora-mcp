@@ -856,6 +856,46 @@
       "view": "repository",
       "source": "site/tests/test_deploy.py",
       "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/src/google-oidc.ts",
+      "label": "mcp-server/src/google-oidc.ts",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/src/google-oidc.ts",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/src/oauth-core.ts",
+      "label": "mcp-server/src/oauth-core.ts",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/src/oauth-core.ts",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/src/oauth-db.ts",
+      "label": "mcp-server/src/oauth-db.ts",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/src/oauth-db.ts",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/src/oauth-http.ts",
+      "label": "mcp-server/src/oauth-http.ts",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/src/oauth-http.ts",
+      "status": "documented"
+    },
+    {
+      "id": "file:mcp-server/src/oauth-memory.ts",
+      "label": "mcp-server/src/oauth-memory.ts",
+      "kind": "file",
+      "view": "repository",
+      "source": "mcp-server/src/oauth-memory.ts",
+      "status": "documented"
     }
   ],
   "edges": [
@@ -2377,6 +2417,134 @@
       "label": "imports",
       "kind": "dependency",
       "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/auth.ts",
+      "to": "file:mcp-server/src/oauth-core.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/auth.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/auth.ts",
+      "to": "file:mcp-server/src/oauth-db.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/auth.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/src/google-oidc.ts",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/src/google-oidc.ts",
+      "status": "documented"
+    },
+    {
+      "from": "file:mcp-server/src/index.ts",
+      "to": "file:mcp-server/src/google-oidc.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/index.ts",
+      "to": "file:mcp-server/src/oauth-core.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/index.ts",
+      "to": "file:mcp-server/src/oauth-db.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/index.ts",
+      "to": "file:mcp-server/src/oauth-http.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/index.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/src/oauth-core.ts",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/src/oauth-core.ts",
+      "status": "documented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/src/oauth-db.ts",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/src/oauth-db.ts",
+      "status": "documented"
+    },
+    {
+      "from": "file:mcp-server/src/oauth-db.ts",
+      "to": "file:mcp-server/src/db.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/oauth-db.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/oauth-db.ts",
+      "to": "file:mcp-server/src/oauth-core.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/oauth-db.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/src/oauth-http.ts",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/src/oauth-http.ts",
+      "status": "documented"
+    },
+    {
+      "from": "file:mcp-server/src/oauth-http.ts",
+      "to": "file:mcp-server/src/google-oidc.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/oauth-http.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "file:mcp-server/src/oauth-http.ts",
+      "to": "file:mcp-server/src/oauth-core.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/oauth-http.ts",
+      "status": "implemented"
+    },
+    {
+      "from": "agora",
+      "to": "file:mcp-server/src/oauth-memory.ts",
+      "label": "repository member",
+      "kind": "inventory",
+      "source": "mcp-server/src/oauth-memory.ts",
+      "status": "documented"
+    },
+    {
+      "from": "file:mcp-server/src/oauth-memory.ts",
+      "to": "file:mcp-server/src/oauth-core.ts",
+      "label": "imports",
+      "kind": "dependency",
+      "source": "mcp-server/src/oauth-memory.ts",
       "status": "implemented"
     }
   ]
