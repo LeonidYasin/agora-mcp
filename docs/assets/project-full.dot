@@ -1,6 +1,14 @@
 digraph Project {
 graph [rankdir=LR];
 node [shape=box];
+"file:mcp-server/src/model-gateway.ts" [label="mcp-server/src/model-gateway.ts (PR #17, not deployed)"];
+"file:mcp-server/test/model-gateway.test.mjs" [label="mcp-server/test/model-gateway.test.mjs"];
+"file:docs/model-connector.md" [label="docs/model-connector.md"];
+"file:deploy/model-connector.env.example" [label="deploy/model-connector.env.example"];
+"file:mcp-server/src/embeddings.ts" -> "file:mcp-server/src/model-gateway.ts" [label="dependency: OpenAI-compatible transport"];
+"file:mcp-server/src/model-gateway.ts" -> "file:mcp-server/src/errors.ts" [label="dependency: safe ToolError"];
+"file:mcp-server/test/model-gateway.test.mjs" -> "file:mcp-server/src/model-gateway.ts" [label="test: mock HTTP contract"];
+"file:docs/model-connector.md" -> "file:deploy/model-connector.env.example" [label="documentation: separate chat/embedding config"];
 "agora" [label="Agora MCP"];
 "agent-a" [label="Личный агент A"];
 "agent-b" [label="Личный агент B"];

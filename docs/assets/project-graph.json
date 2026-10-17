@@ -1,6 +1,10 @@
 {
   "scope": "Repository and deployed market runtime plus explicitly PLANNED public access, economy and republican institutions; conceptual ecosystem is not federation.",
   "nodes": [
+    { "id": "file:mcp-server/src/model-gateway.ts", "label": "mcp-server/src/model-gateway.ts", "kind": "file", "view": "repository", "source": "mcp-server/src/model-gateway.ts", "status": "documented" },
+    { "id": "file:mcp-server/test/model-gateway.test.mjs", "label": "mcp-server/test/model-gateway.test.mjs", "kind": "file", "view": "repository", "source": "mcp-server/test/model-gateway.test.mjs", "status": "documented" },
+    { "id": "file:docs/model-connector.md", "label": "docs/model-connector.md", "kind": "file", "view": "repository", "source": "docs/model-connector.md", "status": "documented" },
+    { "id": "file:deploy/model-connector.env.example", "label": "deploy/model-connector.env.example", "kind": "file", "view": "repository", "source": "deploy/model-connector.env.example", "status": "documented" },
     {
       "id": "agora",
       "label": "Agora MCP",
@@ -859,6 +863,10 @@
     }
   ],
   "edges": [
+    { "from": "file:mcp-server/src/embeddings.ts", "to": "file:mcp-server/src/model-gateway.ts", "kind": "dependency", "label": "OpenAI-compatible transport (PR #17, not deployed)", "source": "mcp-server/src/embeddings.ts", "status": "documented" },
+    { "from": "file:mcp-server/src/model-gateway.ts", "to": "file:mcp-server/src/errors.ts", "kind": "dependency", "label": "safe ToolError", "source": "mcp-server/src/model-gateway.ts", "status": "documented" },
+    { "from": "file:mcp-server/test/model-gateway.test.mjs", "to": "file:mcp-server/src/model-gateway.ts", "kind": "test", "label": "mock HTTP contract tests", "source": "mcp-server/test/model-gateway.test.mjs", "status": "documented" },
+    { "from": "file:docs/model-connector.md", "to": "file:deploy/model-connector.env.example", "kind": "documentation", "label": "separate chat/embedding config, not live env", "source": "docs/model-connector.md", "status": "documented" },
     {
       "from": "agent-a",
       "to": "caddy",
